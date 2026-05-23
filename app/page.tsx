@@ -143,7 +143,7 @@ export default function Home() {
                         <span className="text-zinc-400">Untitled</span>
                       )}
                       <span className="font-medium tabular-nums">
-                        {entry.characters.toLocaleString()}
+                        {entry?.characters?.toLocaleString()}
                       </span>
                     </li>
                   ))}
