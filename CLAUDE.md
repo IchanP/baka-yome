@@ -12,4 +12,5 @@ A Next.js app for tracking Japanese immersion time and reading Japanese ebooks v
 
 - Japanese text must always use `lang="ja"` on relevant elements for correct font rendering
 - The app uses next.js app router, so all pages are in the `app` directory. The `pages` directory is not used.
-- Use Tailwind for all styling, no custom CSS.
+- Use Tailwind for all styling. If you need to add custom styles, add them to `globals.css` and use the appropriate class names in your components.
+- The app is designed to be mobile-first, so ensure that all components are responsive and work
