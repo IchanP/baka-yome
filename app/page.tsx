@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { YearHeatmap, type HeatmapMetric } from "./components/YearHeatmap";
+import { coverFor } from "./lib/covers";
 import {
   fmtChars,
   fmtHours,
@@ -16,12 +17,6 @@ import {
   type ListeningSession,
   type ReadingSession,
 } from "./lib/mock-data";
-import {
-  coverFor,
-  LISTENING_ACCENT,
-  NEUTRAL_TOKENS,
-  READING_ACCENT,
-} from "./lib/theme";
 
 type Mode = "reading" | "listening";
 
@@ -33,7 +28,6 @@ export default function StatisticsPage() {
 
   const isListening = mode === "listening";
   const stream = isListening ? LISTENING_DATA : READING_DATA;
-  const accentTheme = isListening ? LISTENING_ACCENT : READING_ACCENT;
 
   // Listening has no character count — its heatmap is always minutes.
   const heatmapMetric: HeatmapMetric = isListening ? "minutes" : readingMetric;
@@ -59,24 +53,8 @@ export default function StatisticsPage() {
     return n;
   }, [stream]);
 
-  // CSS variables consumed by the .sa-* rules in globals.css.
-  const rootStyle: React.CSSProperties = {
-    ["--bg" as string]: NEUTRAL_TOKENS.bg,
-    ["--surface" as string]: NEUTRAL_TOKENS.surface,
-    ["--surface2" as string]: NEUTRAL_TOKENS.surface2,
-    ["--ink" as string]: NEUTRAL_TOKENS.ink,
-    ["--ink-soft" as string]: NEUTRAL_TOKENS.inkSoft,
-    ["--mute" as string]: NEUTRAL_TOKENS.mute,
-    ["--mute-soft" as string]: NEUTRAL_TOKENS.muteSoft,
-    ["--rule" as string]: NEUTRAL_TOKENS.rule,
-    ["--rule-soft" as string]: NEUTRAL_TOKENS.ruleSoft,
-    ["--heat-empty" as string]: NEUTRAL_TOKENS.heatEmpty,
-    ["--accent" as string]: accentTheme.accent,
-    ["--accent-ink" as string]: accentTheme.accentInk,
-  };
-
   return (
-    <main className="sa-root flex-1" style={rootStyle}>
+    <main className="sa-root flex-1" data-mode={mode}>
       {/* ── Header ──────────────────────────────────────────── */}
       <div className="sa-header">
         <div className="sa-logo">
@@ -155,9 +133,7 @@ export default function StatisticsPage() {
             </div>
           </div>
           <div className="sa-stat-value">
-            <span className="sa-stat-num" style={{ color: accentTheme.accent }}>
-              {stream.streak}
-            </span>
+            <span className="sa-stat-num accent">{stream.streak}</span>
             <span className="sa-stat-unit">
               days · <span lang="ja">日</span>
             </span>
@@ -197,8 +173,6 @@ export default function StatisticsPage() {
           metric={heatmapMetric}
           onMetricChange={setReadingMetric}
           showMetricToggle={!isListening}
-          accent={accentTheme.accent}
-          heatScale={accentTheme.heatScale}
           emptyDayLabel={isListening ? "no listening" : "no reading"}
           activityVerbPast={isListening ? "listened" : "read"}
         />
@@ -286,30 +260,16 @@ export default function StatisticsPage() {
         <div className="sa-card">
           <div className="sa-sess-head">
             <h3>Recent sessions</h3>
-            <span
-              className="sa-eyebrow"
-              lang="ja"
-              style={{
-                fontFamily: "var(--font-serif-ja), serif",
-                letterSpacing: 0,
-                textTransform: "none",
-              }}
-            >
+            <span className="ja-eyebrow" lang="ja">
               最近
             </span>
           </div>
           <div className="sa-sess-list">
             {recentSessions.map((session, i) =>
               isListening ? (
-                <ListeningRow
-                  key={i}
-                  session={session as ListeningSession}
-                />
+                <ListeningRow key={i} session={session as ListeningSession} />
               ) : (
-                <ReadingRow
-                  key={i}
-                  session={session as ReadingSession}
-                />
+                <ReadingRow key={i} session={session as ReadingSession} />
               ),
             )}
           </div>
@@ -356,14 +316,7 @@ function ReadingRow({ session }: { session: ReadingSession }) {
       <div className="sa-sess-val">
         <div className="sa-sess-chars">
           {fmtChars(session.chars)}{" "}
-          <span
-            style={{
-              color: NEUTRAL_TOKENS.mute,
-              fontSize: 10,
-              fontWeight: 400,
-            }}
-            lang="ja"
-          >
+          <span className="unit" lang="ja">
             字
           </span>
         </div>
@@ -389,14 +342,7 @@ function ListeningRow({ session }: { session: ListeningSession }) {
       <div className="sa-sess-val">
         <div className="sa-sess-chars">
           {session.minutes}{" "}
-          <span
-            style={{
-              color: NEUTRAL_TOKENS.mute,
-              fontSize: 10,
-              fontWeight: 400,
-            }}
-            lang="ja"
-          >
+          <span className="unit" lang="ja">
             分
           </span>
         </div>

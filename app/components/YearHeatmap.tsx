@@ -18,10 +18,6 @@ export type YearHeatmapProps = {
   onMetricChange: (metric: HeatmapMetric) => void;
   /** When false, the chars/minutes toggle is replaced with a static "minutes" label. */
   showMetricToggle: boolean;
-  /** Active accent color (already chosen by the parent based on mode/theme). */
-  accent: string;
-  /** Five-stop intensity ramp from empty → max. */
-  heatScale: readonly [string, string, string, string, string];
   /** Tooltip text for days with no activity (e.g. "no reading", "no listening"). */
   emptyDayLabel: string;
   /** Past-tense verb used in the foot summary (e.g. "read", "listened"). */
@@ -29,7 +25,16 @@ export type YearHeatmapProps = {
 };
 
 const DOW_JA = ["日", "月", "火", "水", "木", "金", "土"];
-const INK_COLOR = "#ebe9ee";
+
+// The 5-stop intensity ramp lives in CSS (--heat-0..--heat-4) and swaps
+// with [data-mode]. The component just references the variables by index.
+const HEAT_VARS = [
+  "var(--heat-0)",
+  "var(--heat-1)",
+  "var(--heat-2)",
+  "var(--heat-3)",
+  "var(--heat-4)",
+] as const;
 
 type YearCell = {
   date: string;
@@ -107,8 +112,6 @@ export function YearHeatmap({
   metric,
   onMetricChange,
   showMetricToggle,
-  accent,
-  heatScale,
   emptyDayLabel,
   activityVerbPast,
 }: YearHeatmapProps) {
@@ -161,7 +164,6 @@ export function YearHeatmap({
   }, [populatedWeeks, byDate]);
 
   const nudgeYear = (delta: number) => onYearChange(year + delta);
-  const heat = (bucket: number) => heatScale[bucket];
 
   return (
     <div className="sa-card">
@@ -186,10 +188,7 @@ export function YearHeatmap({
           </button>
           <h2>
             {year}
-            <span
-              lang="ja"
-              style={{ color: accent, marginLeft: 6, fontSize: "0.5em" }}
-            >
+            <span className="yr-suffix" lang="ja">
               年
             </span>
           </h2>
@@ -212,10 +211,7 @@ export function YearHeatmap({
             </svg>
           </button>
           <span className="sa-year-summary">
-            <span style={{ color: INK_COLOR, fontWeight: 600 }}>
-              {yearStats.activeDays}
-            </span>{" "}
-            days ·{" "}
+            <span className="num">{yearStats.activeDays}</span> days ·{" "}
             {metric === "chars" ? (
               <>
                 {fmtChars(yearStats.totalChars)} <span lang="ja">字</span>
@@ -305,7 +301,7 @@ export function YearHeatmap({
                     style={{
                       background:
                         cell.inYear && !cell.isFuture
-                          ? heat(cell.intensity)
+                          ? HEAT_VARS[cell.intensity]
                           : undefined,
                     }}
                   />
@@ -318,14 +314,12 @@ export function YearHeatmap({
 
       <div className="sa-cal-foot">
         <span>
-          <span style={{ color: INK_COLOR, fontWeight: 600 }}>
-            {yearStats.activeDays}
-          </span>{" "}
-          / {yearStats.pastDays} days {activityVerbPast} this year
+          <span className="num">{yearStats.activeDays}</span> /{" "}
+          {yearStats.pastDays} days {activityVerbPast} this year
           {yearStats.bestDate && (
             <>
               {" · best day: "}
-              <span style={{ color: INK_COLOR, fontWeight: 600 }}>
+              <span className="num">
                 {yearStats.bestDate.slice(5)} (
                 {metric === "chars" ? (
                   <>
@@ -342,8 +336,8 @@ export function YearHeatmap({
         <span className="sa-legend">
           Less
           <span className="sa-legend-cells">
-            {[0, 1, 2, 3, 4].map((v) => (
-              <div key={v} style={{ background: heat(v) }} />
+            {HEAT_VARS.map((v, i) => (
+              <div key={i} style={{ background: v }} />
             ))}
           </span>
           More
