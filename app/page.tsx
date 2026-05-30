@@ -92,7 +92,6 @@ export default function StatisticsPage() {
           <span className="on">Stats</span>
           <span>Library</span>
           <span>Sessions</span>
-          <span>Goals</span>
         </div>
       </div>
 
@@ -154,7 +153,9 @@ export default function StatisticsPage() {
             </div>
           </div>
           <div className="sa-stat-value">
-            <span className="sa-stat-num">{fmtMinutes(stream.week.minutes)}</span>
+            <span className="sa-stat-num">
+              {fmtMinutes(stream.week.minutes)}
+            </span>
           </div>
           <div className="sa-stat-sub">
             {isListening
@@ -164,114 +165,122 @@ export default function StatisticsPage() {
         </div>
       </div>
 
-      {/* ── Body: heatmap + log + recent ────────────────────── */}
+      {/* ── Body: heatmap + log (left col) · recent (right col) ── */}
       <div className="sa-body">
-        <YearHeatmap
-          year={year}
-          onYearChange={setYear}
-          byDate={stream.byDate}
-          metric={heatmapMetric}
-          onMetricChange={setReadingMetric}
-          showMetricToggle={!isListening}
-          emptyDayLabel={isListening ? "no listening" : "no reading"}
-          activityVerbPast={isListening ? "listened" : "read"}
-        />
+        <div className="sa-grid">
+          <div className="sa-col-main">
+            <YearHeatmap
+              year={year}
+              onYearChange={setYear}
+              byDate={stream.byDate}
+              metric={heatmapMetric}
+              onMetricChange={setReadingMetric}
+              showMetricToggle={!isListening}
+              emptyDayLabel={isListening ? "no listening" : "no reading"}
+              activityVerbPast={isListening ? "listened" : "read"}
+            />
 
-        {/* Minimal log row (stubbed — no persistence) */}
-        <div className="sa-log-row">
-          <div className="sa-log-eyebrow">
-            {isListening ? "Log listen" : "Log session"}
-            <span className="ja">
-              {" · "}
-              <span lang="ja">{isListening ? "視聴" : "記録"}</span>
-            </span>
-          </div>
-          <div className="sa-log-fields">
-            <input
-              key={`title-${mode}`}
-              className="sa-log-title"
-              defaultValue={isListening ? "呪術廻戦" : "夜は短し歩けよ乙女"}
-              lang="ja"
-              placeholder={
-                isListening
-                  ? "What did you watch or listen to? — title or link"
-                  : "What did you read?"
-              }
-            />
-            <input
-              key={`amt-${mode}`}
-              className="sa-log-amount"
-              defaultValue={
-                isListening ? "48" : logUnit === "chars" ? "9,620" : "72"
-              }
-              inputMode="numeric"
-            />
-            {isListening ? (
-              <div className="sa-log-unit">
-                <span className="sa-log-unit-static" title="Minutes" lang="ja">
-                  分
+            {/* Minimal log row (stubbed — no persistence) */}
+            <div className="sa-log-row">
+              <div className="sa-log-eyebrow">
+                {isListening ? "Log listen" : "Log session"}
+                <span className="ja">
+                  {" · "}
+                  <span lang="ja">{isListening ? "視聴" : "記録"}</span>
                 </span>
               </div>
-            ) : (
-              <div className="sa-log-unit">
-                <button
-                  className={logUnit === "chars" ? "on" : ""}
-                  onClick={() => setLogUnit("chars")}
-                  title="Characters"
+              <div className="sa-log-fields">
+                <input
+                  key={`title-${mode}`}
+                  className="sa-log-title"
+                  defaultValue={isListening ? "呪術廻戦" : "夜は短し歩けよ乙女"}
                   lang="ja"
-                >
-                  字
-                </button>
+                  placeholder={
+                    isListening
+                      ? "What did you watch or listen to? — title or link"
+                      : "What did you read?"
+                  }
+                />
+                <input
+                  key={`amt-${mode}`}
+                  className="sa-log-amount"
+                  defaultValue={
+                    isListening ? "48" : logUnit === "chars" ? "9,620" : "72"
+                  }
+                  inputMode="numeric"
+                />
+                {isListening ? (
+                  <div className="sa-log-unit">
+                    <span
+                      className="sa-log-unit-static"
+                      title="Minutes"
+                      lang="ja"
+                    >
+                      分
+                    </span>
+                  </div>
+                ) : (
+                  <div className="sa-log-unit">
+                    <button
+                      className={logUnit === "chars" ? "on" : ""}
+                      onClick={() => setLogUnit("chars")}
+                      title="Characters"
+                      lang="ja"
+                    >
+                      字
+                    </button>
+                    <button
+                      className={logUnit === "minutes" ? "on" : ""}
+                      onClick={() => setLogUnit("minutes")}
+                      title="Minutes"
+                      lang="ja"
+                    >
+                      分
+                    </button>
+                  </div>
+                )}
                 <button
-                  className={logUnit === "minutes" ? "on" : ""}
-                  onClick={() => setLogUnit("minutes")}
-                  title="Minutes"
-                  lang="ja"
+                  className="sa-log-go"
+                  aria-label="Log session"
+                  onClick={() => {
+                    /* stubbed — UI-only */
+                  }}
                 >
-                  分
+                  Log
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 11 11"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M2 5.5h7M6.5 3l2.5 2.5L6.5 8" />
+                  </svg>
                 </button>
               </div>
-            )}
-            <button
-              className="sa-log-go"
-              aria-label="Log session"
-              onClick={() => {
-                /* stubbed — UI-only */
-              }}
-            >
-              Log
-              <svg
-                width="11"
-                height="11"
-                viewBox="0 0 11 11"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M2 5.5h7M6.5 3l2.5 2.5L6.5 8" />
-              </svg>
-            </button>
+            </div>
           </div>
-        </div>
 
-        {/* Recent sessions */}
-        <div className="sa-card">
-          <div className="sa-sess-head">
-            <h3>Recent sessions</h3>
-            <span className="ja-eyebrow" lang="ja">
-              最近
-            </span>
-          </div>
-          <div className="sa-sess-list">
-            {recentSessions.map((session, i) =>
-              isListening ? (
-                <ListeningRow key={i} session={session as ListeningSession} />
-              ) : (
-                <ReadingRow key={i} session={session as ReadingSession} />
-              ),
-            )}
+          {/* Recent sessions (right column on ≥760px, stacked below on mobile) */}
+          <div className="sa-card sa-sess-card">
+            <div className="sa-sess-head">
+              <h3>Recent sessions</h3>
+              <span className="ja-eyebrow" lang="ja">
+                最近
+              </span>
+            </div>
+            <div className="sa-sess-list">
+              {recentSessions.map((session, i) =>
+                isListening ? (
+                  <ListeningRow key={i} session={session as ListeningSession} />
+                ) : (
+                  <ReadingRow key={i} session={session as ReadingSession} />
+                ),
+              )}
+            </div>
           </div>
         </div>
       </div>
