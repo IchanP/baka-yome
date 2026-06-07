@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
-import { Inter_Tight, Shippori_Mincho_B1, JetBrains_Mono } from "next/font/google";
+import {
+  Inter_Tight,
+  Shippori_Mincho_B1,
+  JetBrains_Mono,
+} from "next/font/google";
 import "./globals.css";
+import { ModeProvider } from "./providers/ModeContext";
+import { Shell } from "./components/Shell";
 
 const interTight = Inter_Tight({
   variable: "--font-sans",
@@ -27,15 +33,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  toolbar,
 }: Readonly<{
   children: React.ReactNode;
+  toolbar: React.ReactNode;
 }>) {
   return (
     <html
       lang="en"
       className={`${interTight.variable} ${shipporiMincho.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ModeProvider>
+          <Shell toolbar={toolbar}>{children}</Shell>
+        </ModeProvider>
+      </body>
     </html>
   );
 }
