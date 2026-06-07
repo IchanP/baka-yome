@@ -1,3 +1,8 @@
 .next
 node_modules
 .claude
+
+# env files (keep .env.example tracked)
+.env
+.env*.local
+tsconfig.tsbuildinfo
