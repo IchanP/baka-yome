@@ -1,4 +1,4 @@
-import { useState, useReducer, SubmitEventHandler } from "react";
+import { useReducer, useState, type SubmitEventHandler } from "react";
 import type { HeatmapMetric } from "./YearHeatmap";
 
 export type LogSessionProps = {
@@ -11,36 +11,56 @@ type LogEntry = {
   amount: number;
 };
 
-type FormEntries = "TITLE" | "AMOUNT";
-
-type LogAction = { type: FormEntries; payload: string };
-
-const initialData: LogEntry = {
-  title: "",
-  amount: 0,
+/** Per-field validation messages; a field is valid when its key is absent. */
+type FieldErrors = {
+  title?: string;
+  amount?: string;
 };
 
-const reducer = (state: LogEntry, action: LogAction) => {
+// Reducer state = the form values plus any active validation errors, so the UI
+// renders messages from a single source of truth.
+type LogState = LogEntry & {
+  errors: FieldErrors;
+};
+
+type LogAction =
+  | { type: "TITLE"; payload: string }
+  | { type: "AMOUNT"; payload: string }
+  | { type: "SET_ERRORS"; payload: FieldErrors };
+
+const MAX_TITLE_LENGTH = 150;
+
+const initialData: LogState = {
+  title: "",
+  amount: 0,
+  errors: {},
+};
+
+const reducer = (state: LogState, action: LogAction): LogState => {
   switch (action.type) {
     case "AMOUNT": {
-      const payload = action.payload;
-      if (payload === "") {
-        return { ...state, amount: 0 };
+      const raw = action.payload;
+      if (raw === "") {
+        return { ...state, amount: 0, errors: { ...state.errors, amount: undefined } };
       }
-      const amount = Number(payload);
+      const amount = Number(raw);
       if (!Number.isInteger(amount) || amount < 0) {
-        return state;
+        const message = "Enter a positive whole number.";
+        return { ...state, errors: { ...state.errors, amount: message } };
       }
-      return { ...state, amount };
+      return { ...state, amount, errors: { ...state.errors, amount: undefined } };
     }
-    case "TITLE":
+    case "TITLE": {
       const title = action.payload;
-      if (title.length < 150) {
-        // TODO we should be showing results from ranobedb api here...
-        return { ...state, title: action.payload };
+      if (title.length > MAX_TITLE_LENGTH) {
+        const message = `Keep the title under ${MAX_TITLE_LENGTH} characters.`;
+        return { ...state, errors: { ...state.errors, title: message } };
       }
-      // TODO display error
-      return state;
+      // TODO we should be showing results from ranobedb api here...
+      return { ...state, title, errors: { ...state.errors, title: undefined } };
+    }
+    case "SET_ERRORS":
+      return { ...state, errors: action.payload };
     default:
       return state;
   }
@@ -48,21 +68,34 @@ const reducer = (state: LogEntry, action: LogAction) => {
 
 export function LogSession({ mode, isListening }: LogSessionProps) {
   const [logUnit, setLogUnit] = useState<HeatmapMetric>("chars");
-  /* TODO how do we use formData? */
   const [formData, dispatch] = useReducer(reducer, initialData);
 
-  const submitLog = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const submitLog: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     const { title, amount } = formData;
+
+    const errors: FieldErrors = {};
+    if (title.trim() === "") {
+      // TODO update these error messages
+      errors.title = "Enter what you've immersed in!";
+    }
+
     if (amount <= 0) {
-      // TODO Show error
+      const unit = isListening || logUnit === "minutes" ? "minutes" : "characters";
+      errors.amount = `Enter how many ${unit} (greater than 0).`;
+    }
+
+    if (errors.title || errors.amount) {
+      dispatch({ type: "SET_ERRORS", payload: errors });
       return;
     }
-    if (title === "") {
-      // TODO show error?
-      return;
-    }
-    // Call API to submit entry...
+
+    const res = await fetch("/api/entries", {
+      method: "POST",
+      body: JSON.stringify({ amount, title }),
+    });
+
+    console.log(res);
   };
 
   return (
@@ -74,69 +107,89 @@ export function LogSession({ mode, isListening }: LogSessionProps) {
           <span lang="ja">{isListening ? "視聴" : "記録"}</span>
         </span>
       </div>
-      <form className="sa-log-fields" onSubmit={submitLog}>
-        <input
-          key={`title-${mode}`}
-          className="sa-log-title"
-          lang="ja"
-          placeholder={
-            isListening
-              ? "What did you watch or listen to? — title or link"
-              : "What did you read?"
-          }
-          value={formData.title}
-          onChange={(e) => dispatch({ type: "TITLE", payload: e.target.value })}
-        />
-        <input
-          key={`amt-${mode}`}
-          className="sa-log-amount"
-          inputMode="numeric"
-          value={formData.amount}
-          onChange={(e) =>
-            dispatch({ type: "AMOUNT", payload: e.target.value })
-          }
-        />
-        {isListening ? (
-          <div className="sa-log-unit">
-            <span className="sa-log-unit-static" title="Minutes" lang="ja">
-              分
-            </span>
-          </div>
-        ) : (
-          <div className="sa-log-unit">
-            <button
-              className={logUnit === "chars" ? "on" : ""}
-              onClick={() => setLogUnit("chars")}
-              title="Characters"
-              lang="ja"
+      <form className="sa-log-form" onSubmit={submitLog} noValidate>
+        <div className="sa-log-fields">
+          <input
+            key={`title-${mode}`}
+            className="sa-log-title"
+            lang="ja"
+            placeholder={
+              isListening
+                ? "What did you watch or listen to? — title or link"
+                : "What did you read?"
+            }
+            value={formData.title}
+            onChange={(e) => dispatch({ type: "TITLE", payload: e.target.value })}
+            aria-invalid={formData.errors.title ? true : undefined}
+            aria-describedby={formData.errors.title ? "log-title-error" : undefined}
+          />
+          <input
+            key={`amt-${mode}`}
+            className="sa-log-amount"
+            inputMode="numeric"
+            value={formData.amount}
+            onChange={(e) => dispatch({ type: "AMOUNT", payload: e.target.value })}
+            aria-invalid={formData.errors.amount ? true : undefined}
+            aria-describedby={formData.errors.amount ? "log-amount-error" : undefined}
+          />
+          {isListening ? (
+            <div className="sa-log-unit">
+              <span className="sa-log-unit-static" title="Minutes" lang="ja">
+                分
+              </span>
+            </div>
+          ) : (
+            <div className="sa-log-unit">
+              <button
+                type="button"
+                className={logUnit === "chars" ? "on" : ""}
+                onClick={() => setLogUnit("chars")}
+                title="Characters"
+                lang="ja"
+              >
+                字
+              </button>
+              <button
+                type="button"
+                className={logUnit === "minutes" ? "on" : ""}
+                onClick={() => setLogUnit("minutes")}
+                title="Minutes"
+                lang="ja"
+              >
+                分
+              </button>
+            </div>
+          )}
+          <button className="sa-log-go" aria-label="Log session" type="submit">
+            Log
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 11 11"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              字
-            </button>
-            <button
-              className={logUnit === "minutes" ? "on" : ""}
-              onClick={() => setLogUnit("minutes")}
-              title="Minutes"
-              lang="ja"
-            >
-              分
-            </button>
+              <path d="M2 5.5h7M6.5 3l2.5 2.5L6.5 8" />
+            </svg>
+          </button>
+        </div>
+        {(formData.errors.title || formData.errors.amount) && (
+          <div className="sa-log-errors" role="alert">
+            {formData.errors.title && (
+              <span id="log-title-error" className="sa-log-error">
+                {formData.errors.title}
+              </span>
+            )}
+            {formData.errors.amount && (
+              <span id="log-amount-error" className="sa-log-error">
+                {formData.errors.amount}
+              </span>
+            )}
           </div>
         )}
-        <button className="sa-log-go" aria-label="Log session" type="submit">
-          Log
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 11 11"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M2 5.5h7M6.5 3l2.5 2.5L6.5 8" />
-          </svg>
-        </button>
       </form>
     </div>
   );

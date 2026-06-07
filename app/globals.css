@@ -19,6 +19,9 @@
   --rule-soft: #2b2c33;
   --heat-empty: #2b2c33;
 
+  /* Validation / error text — readable red on the dark surfaces. */
+  --danger: #ef6f6f;
+
   /* Default accent — reading (purple). Library pages inherit this. */
   --accent: #a380e5;
   --accent-ink: #1c1d21;
@@ -724,12 +727,39 @@ input[type="number"]::-webkit-inner-spin-button {
   font-weight: 500;
   margin-left: 2px;
 }
+/* Column wrapper: the fields row plus a validation-error region beneath it. */
+.sa-log-form {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 .sa-log-fields {
   display: flex;
   align-items: center;
   gap: 10px;
   flex: 1;
   flex-wrap: wrap;
+}
+.sa-log-errors {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 2px;
+}
+.sa-log-error {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--danger);
+}
+.sa-log-title[aria-invalid="true"],
+.sa-log-amount[aria-invalid="true"],
+.sa-log-title[aria-invalid="true"]:focus,
+.sa-log-amount[aria-invalid="true"]:focus,
+.sa-log-title[aria-invalid="true"]:hover,
+.sa-log-amount[aria-invalid="true"]:hover {
+  border-bottom-color: var(--danger);
 }
 .sa-log-title {
   flex: 1 1 200px;

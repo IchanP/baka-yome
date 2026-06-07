@@ -22,25 +22,30 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const characters = Number(body.characters);
+  const { amount, title } = body;
 
-  if (!Number.isFinite(characters) || characters <= 0) {
-    return NextResponse.json(
-      { error: "characters must be a positive number" },
-      { status: 400 },
-    );
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return NextResponse.json({ error: "The amount must be a positive number" }, { status: 400 });
   }
 
-  const name = typeof body.name === "string" ? body.name.trim() : "";
+  if (!title) {
+    return NextResponse.json({ error: "Title  cannot be empty" }, { status: 400 });
+  }
 
-  const entries = await readEntries();
-  const entry: Entry = {
-    date: new Date().toISOString(),
-    characters,
-    ...(name ? { name } : {}),
-  };
-  entries.push(entry);
-  await fs.writeFile(dataFile, JSON.stringify(entries, null, 2));
+  return NextResponse.json({ message: "Entry recorded!" }, { status: 201 });
 
-  return NextResponse.json(entry, { status: 201 });
+  // TODO submit to supabase.
+
+  // const name = typeof body.name === "string" ? body.name.trim() : "";
+
+  // const entries = await readEntries();
+  // const entry: Entry = {
+  //   date: new Date().toISOString(),
+  //   characters,
+  //   ...(name ? { name } : {}),
+  // };
+  // entries.push(entry);
+  // await fs.writeFile(dataFile, JSON.stringify(entries, null, 2));
+
+  // return NextResponse.json(entry, { status: 201 });
 }
