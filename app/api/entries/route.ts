@@ -2,7 +2,14 @@ import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 import { createEntry } from "@/app/server/entries";
-import { createNewEntry, ImmersionKind, isImmersionKind, NewEntry } from "@/app/lib/types";
+import {
+  createNewEntry,
+  ImmersionKind,
+  isImmersionKind,
+  isSource,
+  NewEntry,
+  sourcesForKind,
+} from "@/app/lib/types";
 
 export type Entry = {
   date: string;
@@ -24,7 +31,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const { kind, unit, amount, title, occurredOn } = body;
+  const { kind, unit, amount, title, occurredOn, source } = body;
 
   if (!Number.isFinite(amount) || amount <= 0) {
     return NextResponse.json({ error: "The amount must be a positive number" }, { status: 400 });
@@ -41,6 +48,13 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!isSource(source) || !sourcesForKind(kind).includes(source)) {
+    return NextResponse.json(
+      { error: "Invalid source for the selected kind." },
+      { status: 400 },
+    );
+  }
+
   if (unit !== "minutes" && unit !== "characters") {
     return NextResponse.json(
       { error: "Invalid unit measurement. Must be one of 'minutes' or 'characters'" },
@@ -49,7 +63,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const newEntry = createNewEntry({ title, kind, amount, unit, occurredOn });
+    const newEntry = createNewEntry({ title, kind, amount, unit, occurredOn, source });
     await createEntry(newEntry);
   } catch (e) {
     console.error(e);

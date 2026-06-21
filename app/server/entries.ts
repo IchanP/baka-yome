@@ -8,6 +8,7 @@ type EntryRow = {
   id: string;
   user_id: string | null;
   kind: Entry["kind"];
+  source: Entry["source"];
   title: string | null;
   occurred_on: string;
   characters: number | null;
@@ -20,6 +21,7 @@ function toEntry(row: EntryRow): Entry {
     id: row.id,
     userId: row.user_id,
     kind: row.kind,
+    source: row.source,
     title: row.title,
     occurredOn: row.occurred_on,
     characters: row.characters,
@@ -49,6 +51,7 @@ export async function createEntry(input: NewEntry): Promise<Entry> {
 
   const payload: Record<string, unknown> = {
     kind: input.kind,
+    source: input.source,
     title: input.title ?? null,
     characters: input.characters ?? null,
     minutes: input.minutes ?? null,
