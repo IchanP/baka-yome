@@ -547,6 +547,8 @@ input[type="number"]::-webkit-inner-spin-button {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  transform: scale(1.4);
+  transform-origin: right center;
 }
 
 .sa-yh-dow.hidden {

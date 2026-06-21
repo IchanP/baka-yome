@@ -267,10 +267,7 @@ export function YearHeatmap({
 
           {DOW_JA.map((dow, dayIdx) => (
             <Fragment key={`r${dayIdx}`}>
-              <div
-                className={`sa-yh-dow ${[1, 3, 5].includes(dayIdx) ? "" : "hidden"}`}
-                lang="ja"
-              >
+              <div className="sa-yh-dow" lang="ja">
                 {dow}
               </div>
               {populatedWeeks.map((week, weekIndex) => {
