@@ -15,10 +15,8 @@ const ModeContext = createContext<ModeContextValue | null>(null);
 export function ModeProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<Mode>("reading");
   return (
-    <ModeContext.Provider
-      value={{ mode, setMode, isListening: mode === "listening" }}
-    >
-      {children}move
+    <ModeContext.Provider value={{ mode, setMode, isListening: mode === "listening" }}>
+      {children}
     </ModeContext.Provider>
   );
 }

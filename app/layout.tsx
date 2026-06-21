@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import {
-  Inter_Tight,
-  Shippori_Mincho_B1,
-  JetBrains_Mono,
-} from "next/font/google";
+import { Inter_Tight, Shippori_Mincho_B1, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ModeProvider } from "./providers/ModeContext";
 import { Shell } from "./components/Shell";
+import { ToastProvider } from "./providers/ToastContext";
 
 const interTight = Inter_Tight({
   variable: "--font-sans",
@@ -44,9 +41,11 @@ export default function RootLayout({
       className={`${interTight.variable} ${shipporiMincho.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ModeProvider>
-          <Shell toolbar={toolbar}>{children}</Shell>
-        </ModeProvider>
+        <ToastProvider>
+          <ModeProvider>
+            <Shell toolbar={toolbar}>{children}</Shell>
+          </ModeProvider>
+        </ToastProvider>
       </body>
     </html>
   );

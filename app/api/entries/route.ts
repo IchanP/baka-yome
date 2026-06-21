@@ -1,6 +1,8 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
+import { createEntry } from "@/app/server/entries";
+import { createNewEntry, ImmersionKind, isImmersionKind, NewEntry } from "@/app/lib/types";
 
 export type Entry = {
   date: string;
@@ -22,7 +24,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const { amount, title } = body;
+  const { kind, unit, amount, title, occurredOn } = body;
 
   if (!Number.isFinite(amount) || amount <= 0) {
     return NextResponse.json({ error: "The amount must be a positive number" }, { status: 400 });
@@ -32,20 +34,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Title  cannot be empty" }, { status: 400 });
   }
 
+  if (!isImmersionKind(kind)) {
+    return NextResponse.json(
+      { error: "Invalid kind. Must be one of 'listening' or 'reading'." },
+      { status: 400 },
+    );
+  }
+
+  if (unit !== "minutes" && unit !== "characters") {
+    return NextResponse.json(
+      { error: "Invalid unit measurement. Must be one of 'minutes' or 'characters'" },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const newEntry = createNewEntry({ title, kind, amount, unit, occurredOn });
+    await createEntry(newEntry);
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json(
+      { message: "Something went wrong when saving to database" },
+      { status: 500 },
+    );
+  }
+
   return NextResponse.json({ message: "Entry recorded!" }, { status: 201 });
-
-  // TODO submit to supabase.
-
-  // const name = typeof body.name === "string" ? body.name.trim() : "";
-
-  // const entries = await readEntries();
-  // const entry: Entry = {
-  //   date: new Date().toISOString(),
-  //   characters,
-  //   ...(name ? { name } : {}),
-  // };
-  // entries.push(entry);
-  // await fs.writeFile(dataFile, JSON.stringify(entries, null, 2));
-
-  // return NextResponse.json(entry, { status: 201 });
 }

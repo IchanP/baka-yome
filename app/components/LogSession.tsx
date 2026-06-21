@@ -1,5 +1,7 @@
 import { useReducer, useState, type SubmitEventHandler } from "react";
 import type { HeatmapMetric } from "./YearHeatmap";
+import { ImmersionKind } from "../lib/types";
+import { useToast } from "../providers/ToastContext";
 
 export type LogSessionProps = {
   mode: string;
@@ -26,7 +28,8 @@ type LogState = LogEntry & {
 type LogAction =
   | { type: "TITLE"; payload: string }
   | { type: "AMOUNT"; payload: string }
-  | { type: "SET_ERRORS"; payload: FieldErrors };
+  | { type: "SET_ERRORS"; payload: FieldErrors }
+  | { type: "RESET" };
 
 const MAX_TITLE_LENGTH = 150;
 
@@ -38,6 +41,8 @@ const initialData: LogState = {
 
 const reducer = (state: LogState, action: LogAction): LogState => {
   switch (action.type) {
+    case "RESET":
+      return initialData;
     case "AMOUNT": {
       const raw = action.payload;
       if (raw === "") {
@@ -69,10 +74,13 @@ const reducer = (state: LogState, action: LogAction): LogState => {
 export function LogSession({ mode, isListening }: LogSessionProps) {
   const [logUnit, setLogUnit] = useState<HeatmapMetric>("chars");
   const [formData, dispatch] = useReducer(reducer, initialData);
+  const toast = useToast();
 
   const submitLog: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     const { title, amount } = formData;
+    const kind: ImmersionKind = isListening ? "listening" : "reading";
+    const unit = isListening || logUnit === "minutes" ? "minutes" : "characters";
 
     const errors: FieldErrors = {};
     if (title.trim() === "") {
@@ -81,7 +89,6 @@ export function LogSession({ mode, isListening }: LogSessionProps) {
     }
 
     if (amount <= 0) {
-      const unit = isListening || logUnit === "minutes" ? "minutes" : "characters";
       errors.amount = `Enter how many ${unit} (greater than 0).`;
     }
 
@@ -92,10 +99,24 @@ export function LogSession({ mode, isListening }: LogSessionProps) {
 
     const res = await fetch("/api/entries", {
       method: "POST",
-      body: JSON.stringify({ amount, title }),
+      // TODO occuredOn should be an option the user inputs at some point
+      body: JSON.stringify({ kind, amount, unit, title, occuredOn: null }),
     });
 
-    console.log(res);
+    if (res.ok) {
+      if (title) {
+        toast.showSuccess("Log for " + title + " logged. Good job!");
+      } else {
+        toast.showSuccess("Immersion logged. Good job!");
+      }
+      dispatch({ type: "RESET" });
+    } else {
+      if (res.status === 500) {
+        toast.showError("An internal error occured. Log was not saved.");
+      } else {
+        toast.showError("Something went wrong. Please try logging again.");
+      }
+    }
   };
 
   return (
