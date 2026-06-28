@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { fmtChars, fmtHours, fmtMinutes, fmtNum, ymd } from "../lib/format";
 import type { SessionStream } from "../lib/mock-data";
 import type { Mode } from "../providers/ModeContext";
+import styles from "./HeroStats.module.css";
 
 export type HeroStatsProps = {
   stream: SessionStream<unknown>;
@@ -49,35 +50,35 @@ export function HeroStats({ stream, mode }: HeroStatsProps) {
   }
 
   return (
-    <div className="sa-hero">
-      <div className="sa-stat">
-        <div className="sa-stat-label">
-          <div className="sa-eyebrow">Total</div>
+    <div className={styles.hero}>
+      <div className={styles.stat}>
+        <div className={styles.statLabel}>
+          <div className={styles.eyebrow}>Total</div>
         </div>
-        <div className="sa-stat-value">
-          <span className="sa-stat-num">{totalValue}</span>
-          <span className="sa-stat-unit">{totalUnit}</span>
+        <div className={styles.statValue}>
+          <span className={styles.statNum}>{totalValue}</span>
+          <span className={styles.statUnit}>{totalUnit}</span>
         </div>
-        <div className="sa-stat-sub">{totalSub}</div>
+        <div className={styles.statSub}>{totalSub}</div>
       </div>
-      <div className="sa-stat">
-        <div className="sa-stat-label">
-          <div className="sa-eyebrow">Streak</div>
+      <div className={styles.stat}>
+        <div className={styles.statLabel}>
+          <div className={styles.eyebrow}>Streak</div>
         </div>
-        <div className="sa-stat-value">
-          <span className="sa-stat-num accent">{stream.streak}</span>
-          <span className="sa-stat-unit">days</span>
+        <div className={styles.statValue}>
+          <span className={`${styles.statNum} ${styles.accent}`}>{stream.streak}</span>
+          <span className={styles.statUnit}>days</span>
         </div>
-        <div className="sa-stat-sub">{STREAK_SUB[mode]}</div>
+        <div className={styles.statSub}>{STREAK_SUB[mode]}</div>
       </div>
-      <div className="sa-stat">
-        <div className="sa-stat-label">
-          <div className="sa-eyebrow">This week</div>
+      <div className={styles.stat}>
+        <div className={styles.statLabel}>
+          <div className={styles.eyebrow}>This week</div>
         </div>
-        <div className="sa-stat-value">
-          <span className="sa-stat-num">{fmtMinutes(stream.week.minutes)}</span>
+        <div className={styles.statValue}>
+          <span className={styles.statNum}>{fmtMinutes(stream.week.minutes)}</span>
         </div>
-        <div className="sa-stat-sub">{weekSub}</div>
+        <div className={styles.statSub}>{weekSub}</div>
       </div>
     </div>
   );

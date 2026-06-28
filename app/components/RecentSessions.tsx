@@ -1,6 +1,7 @@
 import { coverFor } from "../lib/covers";
 import { fmtChars, MONTHS_EN } from "../lib/format";
 import type { TaggedSession } from "../lib/mock-data";
+import styles from "./RecentSessions.module.css";
 
 // Dot colours match the reading/listening accents in globals.css. They're
 // hard-coded (not var(--accent)) because the overall view paints in the
@@ -17,12 +18,12 @@ export type RecentSessionsProps = {
 
 export function RecentSessions({ sessions, isOverall }: RecentSessionsProps) {
   return (
-    <div className="sa-card sa-sess-card">
-      <div className="sa-sess-head">
+    <div className={`sa-card ${styles.sessCard}`}>
+      <div className={styles.head}>
         <h3>Recent sessions</h3>
-        {isOverall && <span className="sa-sess-sub">reading + listening</span>}
+        {isOverall && <span className={styles.sub}>reading + listening</span>}
       </div>
-      <div className="sa-sess-list">
+      <div className={styles.list}>
         {sessions.map((session, i) => (
           <SessionRow key={i} session={session} showDot={isOverall} />
         ))}
@@ -40,7 +41,7 @@ function CoverThumb({ title }: { title: string }) {
   const cover = coverFor(title);
   return (
     <div
-      className="sa-sess-cover"
+      className={styles.cover}
       style={{
         background: `linear-gradient(135deg, ${cover.bg1}, ${cover.bg2})`,
         color: cover.fg,
@@ -67,42 +68,42 @@ function SessionRow({
   }
 
   return (
-    <div className="sa-sess-row">
+    <div className={styles.row}>
       <CoverThumb title={session.title} />
       <div style={{ minWidth: 0 }}>
-        <div className="sa-sess-titlewrap">
+        <div className={styles.titlewrap}>
           {showDot && (
             <span
-              className="sa-sess-dot"
+              className={styles.dot}
               style={{ background: KIND_HUE[session.kind] }}
               title={isListening ? "Listening" : "Reading"}
             />
           )}
-          <span className="sa-sess-title" lang="ja">
+          <span className={styles.title} lang="ja">
             {session.title}
           </span>
         </div>
-        <div className="sa-sess-meta">
+        <div className={styles.meta}>
           {dateLabel(session.date)} · {session.type} ·{" "}
           <span lang="ja">{meta}</span>
         </div>
       </div>
-      <div className="sa-sess-val">
+      <div className={styles.val}>
         {session.kind === "listening" ? (
           <>
-            <div className="sa-sess-chars">
-              {session.minutes} <span className="unit">min</span>
+            <div className={styles.chars}>
+              {session.minutes} <span className={styles.unit}>min</span>
             </div>
-            <div className="sa-sess-mins">
+            <div className={styles.mins}>
               {(session.minutes / 60).toFixed(1)}h
             </div>
           </>
         ) : (
           <>
-            <div className="sa-sess-chars">
-              {fmtChars(session.chars)} <span className="unit">chars</span>
+            <div className={styles.chars}>
+              {fmtChars(session.chars)} <span className={styles.unit}>chars</span>
             </div>
-            <div className="sa-sess-mins">{session.minutes}m</div>
+            <div className={styles.mins}>{session.minutes}m</div>
           </>
         )}
       </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import styles from "./Toast.module.css";
+
 export type ToastVariant = "error" | "success";
 
 export type ToastData = {
@@ -23,13 +25,13 @@ type ToastProps = {
  */
 export function Toast({ toast, onDismiss }: ToastProps) {
   return (
-    <div className="sa-toast-region" aria-live="assertive" aria-atomic="true">
+    <div className={styles.region} aria-live="assertive" aria-atomic="true">
       {toast && (
-        <div className={`sa-toast sa-toast--${toast.variant}`} role="alert">
-          <span className="sa-toast-msg">{toast.message}</span>
+        <div className={`${styles.toast} ${styles[toast.variant]}`} role="alert">
+          <span className={styles.msg}>{toast.message}</span>
           <button
             type="button"
-            className="sa-toast-close"
+            className={styles.close}
             aria-label="Dismiss"
             onClick={onDismiss}
           >

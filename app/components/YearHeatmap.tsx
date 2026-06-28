@@ -2,6 +2,7 @@
 
 import { Fragment, useMemo } from "react";
 import { fmtChars, fmtMinutes, fmtNum, MONTHS_EN, ymd } from "../lib/format";
+import styles from "./YearHeatmap.module.css";
 
 export type HeatmapMetric = "chars" | "minutes";
 
@@ -167,10 +168,10 @@ export function YearHeatmap({
 
   return (
     <div className="sa-card">
-      <div className="sa-cal-head">
-        <div className="sa-year-nav">
+      <div className={styles.calHead}>
+        <div className={styles.yearNav}>
           <button
-            className="sa-iconbtn"
+            className={styles.iconbtn}
             onClick={() => nudgeYear(-1)}
             aria-label="Previous year"
           >
@@ -188,7 +189,7 @@ export function YearHeatmap({
           </button>
           <h2>{year}</h2>
           <button
-            className="sa-iconbtn"
+            className={styles.iconbtn}
             onClick={() => nudgeYear(1)}
             disabled={year >= currentYear}
             aria-label="Next year"
@@ -205,8 +206,8 @@ export function YearHeatmap({
               <path d="M4 2l4 3.5L4 9" />
             </svg>
           </button>
-          <span className="sa-year-summary">
-            <span className="num">{yearStats.activeDays}</span> days ·{" "}
+          <span className={styles.yearSummary}>
+            <span className={styles.num}>{yearStats.activeDays}</span> days ·{" "}
             {metric === "chars" ? (
               <>{fmtChars(yearStats.totalChars)} chars</>
             ) : (
@@ -216,30 +217,30 @@ export function YearHeatmap({
         </div>
 
         {showMetricToggle ? (
-          <div className="sa-metric">
+          <div className={styles.metric}>
             <button
-              className={metric === "chars" ? "on" : ""}
+              className={metric === "chars" ? styles.on : ""}
               onClick={() => onMetricChange("chars")}
             >
               Chars
             </button>
             <button
-              className={metric === "minutes" ? "on" : ""}
+              className={metric === "minutes" ? styles.on : ""}
               onClick={() => onMetricChange("minutes")}
             >
               Minutes
             </button>
           </div>
         ) : (
-          <div className="sa-metric" style={{ pointerEvents: "none" }}>
-            <button className="on">Minutes</button>
+          <div className={styles.metric} style={{ pointerEvents: "none" }}>
+            <button className={styles.on}>Minutes</button>
           </div>
         )}
       </div>
 
-      <div className="sa-cal-body">
+      <div className={styles.calBody}>
         <div
-          className="sa-yh"
+          className={styles.yh}
           style={{
             gridTemplateColumns: `auto repeat(${populatedWeeks.length}, minmax(11px, 1fr))`,
           }}
@@ -250,7 +251,7 @@ export function YearHeatmap({
               (s) => s.startWeek === weekIndex,
             );
             return (
-              <div key={`m${weekIndex}`} className="sa-yh-month">
+              <div key={`m${weekIndex}`} className={styles.yhMonth}>
                 {span ? MONTHS_EN[span.month].slice(0, 3) : ""}
               </div>
             );
@@ -258,17 +259,17 @@ export function YearHeatmap({
 
           {DOW_JA.map((dow, dayIdx) => (
             <Fragment key={`r${dayIdx}`}>
-              <div className="sa-yh-dow" lang="ja">
+              <div className={styles.yhDow} lang="ja">
                 {dow}
               </div>
               {populatedWeeks.map((week, weekIndex) => {
                 const cell = week[dayIdx];
                 const className = [
-                  "sa-yh-cell",
-                  !cell.inYear ? "out" : "",
-                  cell.value > 0 && !cell.isFuture ? "has" : "",
-                  cell.isFuture ? "future" : "",
-                  cell.isToday ? "today" : "",
+                  styles.yhCell,
+                  !cell.inYear ? styles.out : "",
+                  cell.value > 0 && !cell.isFuture ? styles.has : "",
+                  cell.isFuture ? styles.future : "",
+                  cell.isToday ? styles.today : "",
                 ]
                   .filter(Boolean)
                   .join(" ");
@@ -300,14 +301,14 @@ export function YearHeatmap({
         </div>
       </div>
 
-      <div className="sa-cal-foot">
+      <div className={styles.calFoot}>
         <span>
-          <span className="num">{yearStats.activeDays}</span> /{" "}
+          <span className={styles.num}>{yearStats.activeDays}</span> /{" "}
           {yearStats.pastDays} days {activityVerbPast} this year
           {yearStats.bestDate && (
             <>
               {" · best day: "}
-              <span className="num">
+              <span className={styles.num}>
                 {yearStats.bestDate.slice(5)} (
                 {metric === "chars" ? (
                   <>{fmtChars(yearStats.bestValue)} chars</>
@@ -319,9 +320,9 @@ export function YearHeatmap({
             </>
           )}
         </span>
-        <span className="sa-legend">
+        <span className={styles.legend}>
           Less
-          <span className="sa-legend-cells">
+          <span className={styles.legendCells}>
             {HEAT_VARS.map((v, i) => (
               <div key={i} style={{ background: v }} />
             ))}

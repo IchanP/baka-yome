@@ -4,6 +4,7 @@ import { ImmersionKind, SOURCE_LABELS, sourcesForKind, type Source } from "../li
 import { useToast } from "../providers/ToastContext";
 import { Select } from "./Select";
 import type { Mode } from "../providers/ModeContext";
+import styles from "./LogSession.module.css";
 
 export type LogSessionProps = {
   mode: Mode;
@@ -151,10 +152,10 @@ export function LogSession({ mode }: LogSessionProps) {
   };
 
   return (
-    <div className="sa-log-row">
-      <div className="sa-log-eyebrow">{eyebrow}</div>
-      <form className="sa-log-form" onSubmit={submitLog} noValidate>
-        <div className="sa-log-fields">
+    <div className={styles.row}>
+      <div className={styles.eyebrow}>{eyebrow}</div>
+      <form className={styles.form} onSubmit={submitLog} noValidate>
+        <div className={styles.fields}>
           {mode === "overall" && (
             <Select
               value={kind}
@@ -168,7 +169,7 @@ export function LogSession({ mode }: LogSessionProps) {
           )}
           <input
             key={`title-${mode}`}
-            className="sa-log-title"
+            className={styles.title}
             lang="ja"
             placeholder={placeholder}
             value={formData.title}
@@ -184,7 +185,7 @@ export function LogSession({ mode }: LogSessionProps) {
           />
           <input
             key={`amt-${mode}`}
-            className="sa-log-amount"
+            className={styles.amount}
             inputMode="numeric"
             value={formData.amount}
             onChange={(e) => dispatch({ type: "AMOUNT", payload: e.target.value })}
@@ -192,16 +193,16 @@ export function LogSession({ mode }: LogSessionProps) {
             aria-describedby={formData.errors.amount ? "log-amount-error" : undefined}
           />
           {isListeningKind ? (
-            <div className="sa-log-unit">
-              <span className="sa-log-unit-static" title="Minutes">
+            <div className={styles.unit}>
+              <span className={styles.unitStatic} title="Minutes">
                 min
               </span>
             </div>
           ) : (
-            <div className="sa-log-unit">
+            <div className={styles.unit}>
               <button
                 type="button"
-                className={logUnit === "chars" ? "on" : ""}
+                className={logUnit === "chars" ? styles.on : ""}
                 onClick={() => setLogUnit("chars")}
                 title="Characters"
               >
@@ -209,7 +210,7 @@ export function LogSession({ mode }: LogSessionProps) {
               </button>
               <button
                 type="button"
-                className={logUnit === "minutes" ? "on" : ""}
+                className={logUnit === "minutes" ? styles.on : ""}
                 onClick={() => setLogUnit("minutes")}
                 title="Minutes"
               >
@@ -217,7 +218,7 @@ export function LogSession({ mode }: LogSessionProps) {
               </button>
             </div>
           )}
-          <button className="sa-log-go" aria-label="Log session" type="submit">
+          <button className={styles.go} aria-label="Log session" type="submit">
             Log
             <svg
               width="11"
@@ -234,14 +235,14 @@ export function LogSession({ mode }: LogSessionProps) {
           </button>
         </div>
         {(formData.errors.title || formData.errors.amount) && (
-          <div className="sa-log-errors" role="alert">
+          <div className={styles.errors} role="alert">
             {formData.errors.title && (
-              <span id="log-title-error" className="sa-log-error">
+              <span id="log-title-error" className={styles.error}>
                 {formData.errors.title}
               </span>
             )}
             {formData.errors.amount && (
-              <span id="log-amount-error" className="sa-log-error">
+              <span id="log-amount-error" className={styles.error}>
                 {formData.errors.amount}
               </span>
             )}

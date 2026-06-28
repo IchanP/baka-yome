@@ -38,9 +38,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${shipporiMincho.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${interTight.variable} ${shipporiMincho.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-full flex flex-col">
+      <body>
         <ToastProvider>
           <ModeProvider>
             <Shell toolbar={toolbar}>{children}</Shell>

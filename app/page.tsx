@@ -14,6 +14,7 @@ import {
   type TaggedSession,
 } from "./lib/mock-data";
 import { useMode, type Mode } from "./providers/ModeContext";
+import styles from "./page.module.css";
 
 // Per-mode copy + data, keyed by mode so the page reads as lookups not ternaries.
 const STREAMS = {
@@ -69,9 +70,9 @@ export default function StatisticsPage() {
       <HeroStats stream={stream} mode={mode} />
 
       {/* ── Body: heatmap + log (left col) · recent (right col) ── */}
-      <div className="sa-body">
-        <div className="sa-grid">
-          <div className="sa-col-main">
+      <div className={styles.body}>
+        <div className={styles.grid}>
+          <div className={styles.colMain}>
             <YearHeatmap
               year={year}
               onYearChange={setYear}

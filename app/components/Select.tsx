@@ -7,6 +7,7 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
+import styles from "./Select.module.css";
 
 export type SelectOption<T extends string> = {
   value: T;
@@ -112,10 +113,10 @@ export function Select<T extends string>({
   };
 
   return (
-    <div className="sa-select" data-open={open} ref={rootRef}>
+    <div className={styles.select} data-open={open} ref={rootRef}>
       <button
         type="button"
-        className="sa-select-trigger"
+        className={styles.trigger}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={ariaLabel}
@@ -127,7 +128,7 @@ export function Select<T extends string>({
       >
         <span>{selected?.label}</span>
         <svg
-          className="sa-select-chevron"
+          className={styles.chevron}
           width="10"
           height="10"
           viewBox="0 0 10 10"
@@ -142,7 +143,7 @@ export function Select<T extends string>({
         </svg>
       </button>
       {open && (
-        <div className="sa-select-menu" role="listbox" aria-label={ariaLabel}>
+        <div className={styles.menu} role="listbox" aria-label={ariaLabel}>
           {options.map((o, index) => (
             <button
               key={o.value}
@@ -151,9 +152,9 @@ export function Select<T extends string>({
               role="option"
               aria-selected={o.value === value}
               className={[
-                "sa-select-option",
-                o.value === value ? "on" : "",
-                index === activeIndex ? "active" : "",
+                styles.option,
+                o.value === value ? styles.on : "",
+                index === activeIndex ? styles.active : "",
               ]
                 .filter(Boolean)
                 .join(" ")}

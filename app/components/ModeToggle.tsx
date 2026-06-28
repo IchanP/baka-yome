@@ -1,6 +1,7 @@
 "use client";
 
 import { useMode, type Mode } from "../providers/ModeContext";
+import styles from "./ModeToggle.module.css";
 
 const TABS: [Mode, string][] = [
   ["overall", "Overall"],
@@ -19,11 +20,11 @@ export function ModeToggle() {
   const { mode, setMode } = useMode();
 
   return (
-    <div className="sa-mode" role="tablist" aria-label="Overall, reading or listening">
+    <div className={styles.mode} role="tablist" aria-label="Overall, reading or listening">
       {TABS.map(([value, label]) => (
         <button
           key={value}
-          className={mode === value ? "on" : ""}
+          className={mode === value ? styles.on : ""}
           onClick={() => setMode(value)}
           aria-pressed={mode === value}
         >
