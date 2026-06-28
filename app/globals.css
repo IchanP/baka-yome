@@ -58,6 +58,17 @@
   --heat-4: #e0685c;
 }
 
+/* Overall mode — teal. Provisional palette, likely to change. */
+[data-mode="overall"] {
+  --accent: #46c7b8;
+  --accent-ink: #1c1d21;
+  --heat-0: #2b2c33;
+  --heat-1: #2f3d3c;
+  --heat-2: #2f5d57;
+  --heat-3: #379184;
+  --heat-4: #46c7b8;
+}
+
 html {
   height: 100%;
   -webkit-font-smoothing: antialiased;

@@ -4,8 +4,8 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 
 export type Mode = "overall" | "reading" | "listening";
 
-/** Which accent/heatmap palette the page paints in. Overall borrows reading's. */
-export type PaletteMode = "reading" | "listening";
+/** Which accent/heatmap palette the page paints in — one per mode. */
+export type PaletteMode = "reading" | "listening" | "overall";
 
 type ModeContextValue = {
   mode: Mode;
@@ -13,7 +13,7 @@ type ModeContextValue = {
   isOverall: boolean;
   isReading: boolean;
   isListening: boolean;
-  /** Overall + Reading share the reading (plum) palette; Listening swaps to red. */
+  /** Each mode paints in its own palette (overall = teal, reading = plum, listening = red). */
   paletteMode: PaletteMode;
 };
 
@@ -29,7 +29,7 @@ export function ModeProvider({ children }: { children: ReactNode }) {
         isOverall: mode === "overall",
         isReading: mode === "reading",
         isListening: mode === "listening",
-        paletteMode: mode === "listening" ? "listening" : "reading",
+        paletteMode: mode,
       }}
     >
       {children}
