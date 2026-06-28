@@ -1,6 +1,14 @@
 import { useEffect, useReducer, useState, type SubmitEventHandler } from "react";
+import { mutate } from "swr";
 import type { HeatmapMetric } from "./YearHeatmap";
-import { ImmersionKind, SOURCE_LABELS, sourcesForKind, type Source } from "../lib/types";
+import { ymd } from "../lib/format";
+import {
+  ImmersionKind,
+  SOURCE_LABELS,
+  sourcesForKind,
+  type Entry,
+  type Source,
+} from "../lib/types";
 import { useToast } from "../providers/ToastContext";
 import { Select } from "./Select";
 import type { Mode } from "../providers/ModeContext";
@@ -129,21 +137,54 @@ export function LogSession({ mode }: LogSessionProps) {
       return;
     }
 
-    const res = await fetch("/api/entries", {
-      method: "POST",
-      // TODO occurredOn should be an option the user inputs at some point
-      body: JSON.stringify({ kind, source, amount, unit, title, occurredOn: null }),
-    });
+    let characters: number | null = null;
+    let minutes: number | null = null;
+    if (unit === "characters") {
+      characters = amount;
+    } else {
+      minutes = amount;
+    }
 
-    if (res.ok) {
+    // Optimistic row shown immediately. Gets replaced with the updatedCached after postEntry returns.
+    const optimisticEntry: Entry = {
+      id: crypto.randomUUID(),
+      userId: null,
+      kind,
+      source,
+      title,
+      occurredOn: ymd(new Date()),
+      characters,
+      minutes,
+      createdAt: new Date().toISOString(),
+    };
+
+    const postEntry = async (current?: Entry[]): Promise<Entry[]> => {
+      const res = await fetch("/api/entries", {
+        method: "POST",
+        // TODO occurredOn should be an option the user inputs at some point
+        body: JSON.stringify({ kind, source, amount, unit, title, occurredOn: null }),
+      });
+      if (!res.ok) {
+        throw new Error(String(res.status));
+      }
+      const { data } = (await res.json()) as { data: Entry };
+      return [data, ...(current ?? [])];
+    };
+
+    try {
+      await mutate<Entry[]>("/api/entries", postEntry, {
+        optimisticData: (current?: Entry[]) => [optimisticEntry, ...(current ?? [])],
+        rollbackOnError: true,
+        revalidate: false, // TODO when adding an occuredOn entry for user this needs to be set to true as the date will be out of sync otherwise.
+      });
       if (title) {
         toast.showSuccess("Log for " + title + " created. Good job!");
       } else {
         toast.showSuccess("Immersion log created. Good job!");
       }
       dispatch({ type: "RESET" });
-    } else {
-      if (res.status === 500) {
+    } catch (err) {
+      if (err instanceof Error && err.message === "500") {
         toast.showError("An internal error occured. Log was not saved.");
       } else {
         toast.showError("Something went wrong. Please try logging again.");

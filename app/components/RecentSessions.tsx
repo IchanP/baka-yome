@@ -1,6 +1,6 @@
 import { coverFor } from "../lib/covers";
 import { fmtChars, MONTHS_EN } from "../lib/format";
-import type { TaggedSession } from "../lib/mock-data";
+import { SOURCE_LABELS, type Entry } from "../lib/types";
 import styles from "./RecentSessions.module.css";
 
 // Dot colours match the reading/listening accents in globals.css. They're
@@ -12,7 +12,7 @@ const KIND_HUE: Record<"reading" | "listening", string> = {
 };
 
 export type RecentSessionsProps = {
-  sessions: TaggedSession[];
+  sessions: Entry[];
   isOverall: boolean;
 };
 
@@ -24,8 +24,8 @@ export function RecentSessions({ sessions, isOverall }: RecentSessionsProps) {
         {isOverall && <span className={styles.sub}>reading + listening</span>}
       </div>
       <div className={styles.list}>
-        {sessions.map((session, i) => (
-          <SessionRow key={i} session={session} showDot={isOverall} />
+        {sessions.map((session) => (
+          <SessionRow key={session.id} session={session} showDot={isOverall} />
         ))}
       </div>
     </div>
@@ -57,19 +57,16 @@ function SessionRow({
   session,
   showDot,
 }: {
-  session: TaggedSession;
+  session: Entry;
   showDot: boolean;
 }) {
   const isListening = session.kind === "listening";
-
-  let meta = session.author;
-  if (session.kind === "listening") {
-    meta = session.link || session.author;
-  }
+  const title = session.title ?? "Untitled";
+  const minutes = session.minutes ?? 0;
 
   return (
     <div className={styles.row}>
-      <CoverThumb title={session.title} />
+      <CoverThumb title={title} />
       <div style={{ minWidth: 0 }}>
         <div className={styles.titlewrap}>
           {showDot && (
@@ -80,30 +77,28 @@ function SessionRow({
             />
           )}
           <span className={styles.title} lang="ja">
-            {session.title}
+            {title}
           </span>
         </div>
         <div className={styles.meta}>
-          {dateLabel(session.date)} · {session.type} ·{" "}
-          <span lang="ja">{meta}</span>
+          {dateLabel(session.occurredOn)} · {SOURCE_LABELS[session.source]}
         </div>
       </div>
       <div className={styles.val}>
-        {session.kind === "listening" ? (
+        {isListening ? (
           <>
             <div className={styles.chars}>
-              {session.minutes} <span className={styles.unit}>min</span>
+              {minutes} <span className={styles.unit}>min</span>
             </div>
-            <div className={styles.mins}>
-              {(session.minutes / 60).toFixed(1)}h
-            </div>
+            <div className={styles.mins}>{(minutes / 60).toFixed(1)}h</div>
           </>
         ) : (
           <>
             <div className={styles.chars}>
-              {fmtChars(session.chars)} <span className={styles.unit}>chars</span>
+              {fmtChars(session.characters ?? 0)}{" "}
+              <span className={styles.unit}>chars</span>
             </div>
-            <div className={styles.mins}>{session.minutes}m</div>
+            <div className={styles.mins}>{minutes}m</div>
           </>
         )}
       </div>

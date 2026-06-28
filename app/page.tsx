@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import useSWR from "swr";
 import { HeroStats } from "./components/HeroStats";
 import { LogSession } from "./components/LogSession";
 import { RecentSessions } from "./components/RecentSessions";
@@ -9,12 +10,13 @@ import {
   LISTENING_DATA,
   OVERALL_DATA,
   READING_DATA,
-  type TaggedListeningSession,
-  type TaggedReadingSession,
-  type TaggedSession,
 } from "./lib/mock-data";
+import type { Entry } from "./lib/types";
 import { useMode, type Mode } from "./providers/ModeContext";
 import styles from "./page.module.css";
+
+const fetcher = (url: string): Promise<Entry[]> =>
+  fetch(url).then((r) => r.json());
 
 // Per-mode copy + data, keyed by mode so the page reads as lookups not ternaries.
 const STREAMS = {
@@ -22,6 +24,8 @@ const STREAMS = {
   reading: READING_DATA,
   listening: LISTENING_DATA,
 };
+
+// TODO move these into yearheatmap
 const EMPTY_DAY_LABEL: Record<Mode, string> = {
   overall: "no activity",
   reading: "no reading",
@@ -37,33 +41,24 @@ export default function StatisticsPage() {
   const { mode, isOverall, isReading, isListening } = useMode();
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [readingMetric, setReadingMetric] = useState<HeatmapMetric>("chars");
-
   const stream = STREAMS[mode];
 
-  // Only reading has a character count, so only reading offers the chars/min
-  // toggle — overall and listening are always minute-based.
   let heatmapMetric: HeatmapMetric = "minutes";
   if (isReading) {heatmapMetric = readingMetric;}
 
-  // Recent rows are always tagged so the component can render each by its kind
-  // (and show the reading/listening dot in overall).
-  const recentSessions = useMemo<TaggedSession[]>(() => {
-    let tagged: TaggedSession[];
-    if (isOverall) {
-      tagged = OVERALL_DATA.sessions;
+  // Is auto-updated using the mutate API in logsession.
+  const { data: entries } = useSWR<Entry[]>("/api/entries", fetcher);
+
+  const recentSessions = useMemo<Entry[]>(() => {
+    const all = entries ?? [];
+    let filtered = all;
+    if (isReading) {
+      filtered = all.filter((e) => e.kind === "reading");
     } else if (isListening) {
-      tagged = LISTENING_DATA.sessions.map(
-        (s): TaggedListeningSession => ({ ...s, kind: "listening" }),
-      );
-    } else {
-      tagged = READING_DATA.sessions.map(
-        (s): TaggedReadingSession => ({ ...s, kind: "reading" }),
-      );
+      filtered = all.filter((e) => e.kind === "listening");
     }
-    return [...tagged]
-      .sort((a, b) => b.date.localeCompare(a.date))
-      .slice(0, 8);
-  }, [isOverall, isListening]);
+    return filtered.slice(0, 8);
+  }, [entries, isReading, isListening]);
 
   return (
     <>

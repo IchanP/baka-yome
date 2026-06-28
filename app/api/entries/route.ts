@@ -1,7 +1,5 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { NextResponse } from "next/server";
-import { createEntry } from "@/app/server/entries";
+import { createEntry, listEntries } from "@/app/server/entries";
 import {
   createNewEntry,
   isImmersionKind,
@@ -9,22 +7,14 @@ import {
   sourcesForKind,
 } from "@/app/lib/types";
 
-export type Entry = {
-  date: string;
-  characters: number;
-  name?: string;
-};
-
-const dataFile = path.join(process.cwd(), "data", "entries.json");
-
-async function readEntries(): Promise<Entry[]> {
-  const raw = await fs.readFile(dataFile, "utf-8");
-  return JSON.parse(raw) as Entry[];
-}
-
 export async function GET() {
-  const entries = await readEntries();
-  return NextResponse.json(entries);
+  try {
+    const entries = await listEntries();
+    return NextResponse.json(entries);
+  } catch(e) {
+    console.error(e);
+    return NextResponse.json({ error: "Internal Server Error"}, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -60,9 +50,10 @@ export async function POST(request: Request) {
     );
   }
 
+  let entryRow;
   try {
     const newEntry = createNewEntry({ title, kind, amount, unit, occurredOn, source });
-    await createEntry(newEntry);
+    entryRow = await createEntry(newEntry);
   } catch (e) {
     console.error(e);
     return NextResponse.json(
@@ -71,5 +62,5 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ message: "Entry recorded!" }, { status: 201 });
+  return NextResponse.json({ data: entryRow }, { status: 201 });
 }
