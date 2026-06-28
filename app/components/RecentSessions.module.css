@@ -1,0 +1,151 @@
+/* The .sa-card surface primitive stays global (shared with YearHeatmap). */
+
+/* Stacked (mobile/tablet): cap the sessions card so it doesn't run full-bleed. */
+.sessCard {
+  min-width: 0;
+  max-width: 460px;
+}
+
+@container (min-width: 760px) {
+  /* Side by side: the rail can fill its column. */
+  .sessCard {
+    max-width: none;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--pad) var(--pad) 8px;
+}
+
+.head h3 {
+  margin: 0;
+  font-family: var(--font-serif-ja), serif;
+  font-weight: 600;
+  font-size: var(--fs-md);
+  line-height: 1.1;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.sub {
+  font-size: var(--fs-xs);
+  color: var(--mute);
+}
+
+.list {
+  padding: 0 var(--pad) var(--pad);
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.row:first-child {
+  border-top: none;
+}
+
+.cover {
+  width: 32px;
+  height: 44px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-serif-ja), serif;
+  font-weight: 600;
+  font-size: var(--fs-micro);
+  line-height: 1.05;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  padding: 3px 0;
+  box-shadow:
+    inset 1px 0 0 rgba(255, 255, 255, 0.2),
+    inset -1px 0 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.cover::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  bottom: 3px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.titlewrap {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.title {
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: var(--fs-base);
+  line-height: 1.25;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  font-size: var(--fs-xs);
+  color: var(--mute);
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.val {
+  text-align: right;
+}
+
+.chars {
+  font-family: var(--font-serif-ja), serif;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  line-height: 1;
+  color: var(--ink);
+}
+
+.chars .unit {
+  color: var(--mute);
+  font-size: var(--fs-micro);
+  font-weight: 400;
+}
+
+.mins {
+  font-family: var(--font-mono), monospace;
+  font-weight: 500;
+  font-size: var(--fs-xs);
+  line-height: 1;
+  color: var(--mute);
+  margin-top: 3px;
+}

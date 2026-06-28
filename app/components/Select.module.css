@@ -1,0 +1,75 @@
+.select {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  padding: 8px 2px;
+  color: var(--ink);
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.trigger:hover,
+.trigger:focus-visible,
+.select[data-open="true"] .trigger {
+  border-bottom-color: var(--ink);
+}
+
+.chevron {
+  color: var(--mute);
+  transition: transform 0.15s;
+}
+
+.select[data-open="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  background: var(--surface2);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+.option {
+  text-align: left;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 12px;
+  color: var(--ink-soft);
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.option:hover,
+.option.active {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.option.on {
+  color: var(--accent);
+}

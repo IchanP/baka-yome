@@ -1,0 +1,170 @@
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 6px 4px;
+}
+
+@container (min-width: 640px) {
+  .row {
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
+    padding: 8px 6px;
+  }
+}
+
+.eyebrow {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mute);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* Column wrapper: the fields row plus a validation-error region beneath it. */
+.form {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fields {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.errors {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 2px;
+}
+
+.error {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--danger);
+}
+
+.title[aria-invalid="true"],
+.amount[aria-invalid="true"],
+.title[aria-invalid="true"]:focus,
+.amount[aria-invalid="true"]:focus,
+.title[aria-invalid="true"]:hover,
+.amount[aria-invalid="true"]:hover {
+  border-bottom-color: var(--danger);
+}
+
+.title {
+  flex: 1 1 200px;
+  min-width: 140px;
+  background: transparent;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid var(--rule);
+  padding: 8px 2px;
+  color: var(--ink);
+  font-family: var(--font-serif-ja), serif;
+  font-weight: 500;
+  font-size: var(--fs-base);
+  line-height: 1.2;
+  transition: border-color 0.15s;
+}
+
+.title::placeholder {
+  color: var(--mute-soft);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.title:focus,
+.title:hover {
+  border-bottom-color: var(--ink);
+}
+
+.amount {
+  width: 76px;
+  background: transparent;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid var(--rule);
+  padding: 8px 4px;
+  color: var(--ink);
+  font-family: var(--font-mono), monospace;
+  font-weight: 500;
+  font-size: var(--fs-base);
+  line-height: 1.2;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.15s;
+}
+
+.amount:focus,
+.amount:hover {
+  border-bottom-color: var(--ink);
+}
+
+.unit {
+  display: inline-flex;
+  gap: 2px;
+  align-items: flex-end;
+  padding-bottom: 2px;
+}
+
+.unit button {
+  border: none;
+  background: transparent;
+  color: var(--mute);
+  cursor: pointer;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  line-height: 1;
+  padding: 6px 7px;
+  border-radius: 4px;
+}
+
+.unit button.on {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.unitStatic {
+  color: var(--accent);
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  line-height: 1;
+  padding: 6px 4px;
+  display: inline-flex;
+  align-items: flex-end;
+}
+
+.go {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  line-height: 1;
+  padding: 8px 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: -0.005em;
+  transition: color 0.15s;
+}
+
+.go:hover {
+  color: var(--accent);
+}

@@ -1,0 +1,29 @@
+.body {
+  padding: var(--pad);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* Two-column layout on wide viewports: heatmap + log in the left column,
+   recent sessions in the right. Stacks on mobile. */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+
+.colMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-width: 0;
+}
+
+@container (min-width: 760px) {
+  /* Side by side: heatmap + log fill, recent sessions sit in a narrow rail. */
+  .grid {
+    grid-template-columns: minmax(0, 1fr) clamp(300px, 30%, 500px);
+    align-items: start;
+  }
+}

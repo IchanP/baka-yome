@@ -1,0 +1,66 @@
+.hero {
+  padding: var(--pad);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+  border-bottom: 1px solid var(--rule);
+}
+
+.stat {
+  padding: 0;
+  text-align: center;
+}
+
+.statLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.eyebrow {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mute);
+  font-weight: 600;
+}
+
+.statValue {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  justify-content: center;
+}
+
+.statNum {
+  font-family: var(--font-serif-ja), serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+  font-size: var(--fs-display);
+}
+
+.statNum.accent {
+  color: var(--accent);
+}
+
+.statUnit {
+  font-size: var(--fs-xs);
+  color: var(--mute);
+  font-weight: 500;
+}
+
+.statSub {
+  font-size: var(--fs-xs);
+  color: var(--mute);
+  margin-top: 6px;
+}
+
+@container (min-width: 720px) {
+  .statSub {
+    font-size: var(--fs-sm);
+    margin-top: 7px;
+  }
+}

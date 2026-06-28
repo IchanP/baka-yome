@@ -1,0 +1,254 @@
+/* The .sa-card surface primitive stays global (shared with RecentSessions). */
+
+.calHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pad) var(--pad) 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.yearNav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.yearNav h2 {
+  margin: 0;
+  font-family: var(--font-serif-ja), serif;
+  font-weight: 500;
+  font-size: var(--fs-display-lg);
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  font-feature-settings: "tnum";
+}
+
+.yearSummary {
+  font-size: var(--fs-sm);
+  color: var(--mute);
+  margin-left: 10px;
+  display: none;
+}
+
+.yearSummary .num {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+@container (min-width: 540px) {
+  .yearSummary {
+    display: inline;
+  }
+}
+
+.iconbtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconbtn:hover {
+  background: var(--surface2);
+  color: var(--ink);
+}
+
+.iconbtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.metric {
+  display: inline-flex;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.metric button {
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: var(--fs-xs);
+  line-height: 1;
+  color: var(--mute);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.metric button.on {
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 0 0 1px var(--rule);
+}
+
+/* Heatmap grid */
+.calBody {
+  padding: 0 var(--pad) calc(var(--pad) - 2px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mute-soft) var(--surface2);
+}
+
+.calBody::-webkit-scrollbar {
+  height: 8px;
+}
+
+.calBody::-webkit-scrollbar-track {
+  background: var(--surface2);
+  border-radius: 5px;
+  margin: 0 2px;
+}
+
+.calBody::-webkit-scrollbar-thumb {
+  background: var(--mute-soft);
+  border-radius: 5px;
+  border: 2px solid var(--surface2);
+  background-clip: padding-box;
+  min-width: 32px;
+}
+
+.calBody::-webkit-scrollbar-thumb:hover {
+  background: var(--mute);
+}
+
+.yh {
+  display: grid;
+  column-gap: 3px;
+  row-gap: 3px;
+  min-width: 100%;
+  width: 100%;
+}
+
+.yhMonth {
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: var(--fs-micro);
+  line-height: 1;
+  color: var(--mute);
+  letter-spacing: 0.02em;
+  padding-bottom: 4px;
+  white-space: nowrap;
+  overflow: visible;
+  min-width: 0;
+}
+
+.yhDow {
+  font-family: var(--font-serif-ja), serif;
+  font-weight: 500;
+  font-size: var(--fs-micro);
+  line-height: 1;
+  color: var(--mute);
+  padding-right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transform: scale(1.4);
+  transform-origin: right center;
+}
+
+.yhDow.hidden {
+  visibility: hidden;
+}
+
+.yhCell {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: var(--heat-empty);
+  transition: transform 0.12s;
+  min-width: 0;
+}
+
+.yhCell.has:hover {
+  transform: scale(1.6);
+  z-index: 1;
+  position: relative;
+}
+
+.yhCell.out {
+  visibility: hidden;
+}
+
+.yhCell.future {
+  opacity: 0.35;
+}
+
+.yhCell.today {
+  box-shadow:
+    0 0 0 1px var(--accent),
+    0 0 0 2.5px var(--bg);
+}
+
+@container (min-width: 720px) {
+  .yh {
+    column-gap: 3px;
+    row-gap: 3px;
+  }
+
+  .yhCell {
+    border-radius: 2.5px;
+  }
+}
+
+@container (min-width: 1100px) {
+  .yh {
+    column-gap: 4px;
+    row-gap: 4px;
+  }
+
+  .yhCell {
+    border-radius: 3px;
+  }
+}
+
+.calFoot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px var(--pad) var(--pad);
+  font-size: var(--fs-sm);
+  color: var(--mute);
+  flex-wrap: wrap;
+  gap: 10px;
+  border-top: 1px solid var(--rule-soft);
+  margin-top: 6px;
+}
+
+.calFoot .num {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legendCells {
+  display: flex;
+  gap: 3px;
+}
+
+.legendCells div {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+}
