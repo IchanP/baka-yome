@@ -105,7 +105,32 @@ function intensityBucket(value: number, metric: "chars" | "minutes"): number {
   return 4;
 }
 
-// Used for overall comparison across both reading and listening.
+// TODO : In the future this should be calculated from the users activity instead of being hardcoded
+const CHARS_FULL = 14000;
+const MINUTES_FULL = 80;
+
+// Normalize against heavy day 1.0 = one heavy day.
+function overallLoad(chars: number, minutes: number): number {
+  return chars / CHARS_FULL + minutes / MINUTES_FULL;
+}
+
+function overallBucket(chars: number, minutes: number): number {
+  const load = overallLoad(chars, minutes);
+  if (load <= 0) {
+    return 0;
+  }
+  if (load < 0.5) {
+    return 1;
+  }
+  if (load < 1) {
+    return 2;
+  }
+  if (load < 1.75) {
+    return 3;
+  }
+  return 4;
+}
+
 function bucketFor(metric: HeatmapMetric, chars: number, minutes: number): number {
   if (metric === "chars") {
     return intensityBucket(chars, "chars");
@@ -113,26 +138,17 @@ function bucketFor(metric: HeatmapMetric, chars: number, minutes: number): numbe
   if (metric === "minutes") {
     return intensityBucket(minutes, "minutes");
   }
-  return Math.min(
-    4,
-    intensityBucket(chars, "chars") + intensityBucket(minutes, "minutes"),
-  );
+  return overallBucket(chars, minutes);
 }
 
-function rankValue(
-  metric: HeatmapMetric,
-  chars: number,
-  minutes: number,
-  intensity: number,
-): number {
+function rankValue(metric: HeatmapMetric, chars: number, minutes: number): number {
   if (metric === "chars") {
     return chars;
   }
   if (metric === "minutes") {
     return minutes;
   }
-  // Overall uses intensity
-  return intensity;
+  return overallLoad(chars, minutes);
 }
 
 function describeDay(
@@ -180,7 +196,7 @@ export function YearHeatmap({
             minutes = day.minutes;
           }
           const intensity = bucketFor(metric, chars, minutes);
-          const rank = rankValue(metric, chars, minutes, intensity);
+          const rank = rankValue(metric, chars, minutes);
           return { ...cell, chars, minutes, intensity, rank };
         }),
       ),
