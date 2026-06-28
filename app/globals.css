@@ -150,15 +150,6 @@ input[type="number"]::-webkit-inner-spin-button {
   font-weight: 600;
 }
 
-.sa-eyebrow .ja {
-  margin-left: 6px;
-  letter-spacing: 0;
-  text-transform: none;
-  font-weight: 500;
-  color: var(--mute-soft);
-  font-family: var(--font-serif-ja), serif;
-}
-
 .sa-card {
   background: var(--surface);
   border: 1px solid var(--rule);
@@ -266,24 +257,10 @@ input[type="number"]::-webkit-inner-spin-button {
     0 0 0 1px var(--rule);
 }
 
-.sa-mode button .k {
-  font-family: var(--font-serif-ja), serif;
-  font-size: var(--fs-base);
-  font-weight: 600;
-  line-height: 1;
-}
-
-.sa-mode button.on .k {
-  color: var(--accent);
-}
-
-@container (max-width: 380px) {
-  .sa-mode button .lbl {
-    display: none;
-  }
-
+@container (max-width: 460px) {
   .sa-mode button {
-    padding: 8px 11px;
+    padding: 8px 10px;
+    font-size: var(--fs-xs);
   }
 }
 
@@ -370,14 +347,21 @@ input[type="number"]::-webkit-inner-spin-button {
   min-width: 0;
 }
 
+/* Stacked (mobile/tablet): cap the sessions card so it doesn't run full-bleed. */
 .sa-sess-card {
   min-width: 0;
+  max-width: 460px;
 }
 
 @container (min-width: 760px) {
+  /* Side by side: heatmap + log fill, recent sessions sit in a narrow rail. */
   .sa-grid {
-    grid-template-columns: 1.45fr 1fr;
+    grid-template-columns: minmax(0, 1fr) clamp(300px, 30%, 500px);
     align-items: start;
+  }
+
+  .sa-sess-card {
+    max-width: none;
   }
 }
 
@@ -406,12 +390,6 @@ input[type="number"]::-webkit-inner-spin-button {
   color: var(--ink);
   letter-spacing: -0.02em;
   font-feature-settings: "tnum";
-}
-
-.sa-year-nav h2 .yr-suffix {
-  color: var(--accent);
-  margin-left: 6px;
-  font-size: 0.5em;
 }
 
 .sa-year-summary {
@@ -465,7 +443,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .sa-metric button {
   border: none;
   background: transparent;
-  font-family: var(--font-serif-ja), serif;
+  font-family: var(--font-sans), sans-serif;
   font-weight: 500;
   font-size: var(--fs-xs);
   line-height: 1;
@@ -659,13 +637,9 @@ input[type="number"]::-webkit-inner-spin-button {
   letter-spacing: -0.01em;
 }
 
-.sa-sess-head .ja-eyebrow {
-  font-family: var(--font-serif-ja), serif;
-  letter-spacing: 0;
-  text-transform: none;
+.sa-sess-sub {
   font-size: var(--fs-xs);
   color: var(--mute);
-  font-weight: 600;
 }
 
 .sa-sess-list {
@@ -720,6 +694,20 @@ input[type="number"]::-webkit-inner-spin-button {
   bottom: 3px;
   width: 1px;
   background: rgba(255, 255, 255, 0.2);
+}
+
+.sa-sess-titlewrap {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.sa-sess-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
 }
 
 .sa-sess-title {
@@ -793,15 +781,6 @@ input[type="number"]::-webkit-inner-spin-button {
   color: var(--mute);
   font-weight: 600;
   flex-shrink: 0;
-}
-
-.sa-log-eyebrow .ja {
-  font-family: var(--font-serif-ja), serif;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--mute-soft);
-  font-weight: 500;
-  margin-left: 2px;
 }
 
 /* Column wrapper: the fields row plus a validation-error region beneath it. */
@@ -980,25 +959,24 @@ input[type="number"]::-webkit-inner-spin-button {
   background: transparent;
   color: var(--mute);
   cursor: pointer;
-  font-family: var(--font-serif-ja), serif;
+  font-family: var(--font-sans), sans-serif;
   font-weight: 500;
-  font-size: var(--fs-base);
+  font-size: var(--fs-sm);
   line-height: 1;
-  padding: 6px 6px;
+  padding: 6px 7px;
   border-radius: 4px;
-  min-width: 22px;
 }
 
 .sa-log-unit button.on {
   color: var(--accent);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .sa-log-unit-static {
   color: var(--accent);
-  font-family: var(--font-serif-ja), serif;
+  font-family: var(--font-sans), sans-serif;
   font-weight: 600;
-  font-size: var(--fs-base);
+  font-size: var(--fs-sm);
   line-height: 1;
   padding: 6px 4px;
   display: inline-flex;

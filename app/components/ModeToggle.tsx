@@ -1,37 +1,35 @@
 "use client";
 
-import { useMode } from "../providers/ModeContext";
+import { useMode, type Mode } from "../providers/ModeContext";
+
+const TABS: [Mode, string][] = [
+  ["overall", "Overall"],
+  ["reading", "Reading"],
+  ["listening", "Listening"],
+];
 
 /**
- * Reading / listening palette + data switch. Rendered into the header via
- * the @toolbar parallel-route slot, but reads/writes the shared ModeContext
- * so the page body and the [data-mode] theme stay in sync.
+ * Overall / reading / listening palette + data switch. Rendered into the
+ * header via the @toolbar parallel-route slot, but reads/writes the shared
+ * ModeContext so the page body and the [data-mode] theme stay in sync.
+ *
+ * Overall is the default and merges both streams; reading and listening filter.
  */
 export function ModeToggle() {
-  const { isListening, setMode } = useMode();
+  const { mode, setMode } = useMode();
 
   return (
-    <div className="sa-mode" role="tablist" aria-label="Reading or listening">
-      <button
-        className={!isListening ? "on" : ""}
-        onClick={() => setMode("reading")}
-        aria-pressed={!isListening}
-      >
-        <span className="k" lang="ja">
-          読
-        </span>
-        <span className="lbl">Reading</span>
-      </button>
-      <button
-        className={isListening ? "on" : ""}
-        onClick={() => setMode("listening")}
-        aria-pressed={isListening}
-      >
-        <span className="k" lang="ja">
-          聴
-        </span>
-        <span className="lbl">Listening</span>
-      </button>
+    <div className="sa-mode" role="tablist" aria-label="Overall, reading or listening">
+      {TABS.map(([value, label]) => (
+        <button
+          key={value}
+          className={mode === value ? "on" : ""}
+          onClick={() => setMode(value)}
+          aria-pressed={mode === value}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }

@@ -55,14 +55,14 @@ export function Select<T extends string>({
   };
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {return;}
     const onPointerDown = (e: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {setOpen(false);}
     };
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -76,13 +76,13 @@ export function Select<T extends string>({
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        if (open) setActiveIndex((i) => Math.min(options.length - 1, i + 1));
-        else openMenu();
+        if (open) {setActiveIndex((i) => Math.min(options.length - 1, i + 1));}
+        else {openMenu();}
         break;
       case "ArrowUp":
         e.preventDefault();
-        if (open) setActiveIndex((i) => Math.max(0, i - 1));
-        else openMenu();
+        if (open) {setActiveIndex((i) => Math.max(0, i - 1));}
+        else {openMenu();}
         break;
       case "Home":
         if (open) {
@@ -103,7 +103,7 @@ export function Select<T extends string>({
         e.preventDefault();
         if (open) {
           const option = options[activeIndex];
-          if (option) commit(option);
+          if (option) {commit(option);}
         } else {
           openMenu();
         }

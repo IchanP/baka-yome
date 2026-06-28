@@ -18,10 +18,10 @@ export function Shell({
   toolbar: ReactNode;
   children: ReactNode;
 }) {
-  const { mode } = useMode();
+  const { paletteMode } = useMode();
 
   return (
-    <main className="sa-root flex-1" data-mode={mode}>
+    <main className="sa-root flex-1" data-mode={paletteMode}>
       <div className="sa-header">
         <Logo />
         {toolbar}

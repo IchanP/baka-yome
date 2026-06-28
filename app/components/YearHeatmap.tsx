@@ -55,9 +55,9 @@ function getYearGrid(year: number, now: Date = new Date()): YearGrid {
   today.setHours(0, 0, 0, 0);
 
   const start = new Date(year, 0, 1);
-  while (start.getDay() !== 0) start.setDate(start.getDate() - 1);
+  while (start.getDay() !== 0) {start.setDate(start.getDate() - 1);}
   const end = new Date(year, 11, 31);
-  while (end.getDay() !== 6) end.setDate(end.getDate() + 1);
+  while (end.getDay() !== 6) {end.setDate(end.getDate() + 1);}
 
   const weeks: YearCell[][] = [];
   const cursor = new Date(start);
@@ -81,7 +81,7 @@ function getYearGrid(year: number, now: Date = new Date()): YearGrid {
   let lastMonth = -1;
   weeks.forEach((week, weekIndex) => {
     const firstInYear = week.find((d) => d.inYear);
-    if (!firstInYear) return;
+    if (!firstInYear) {return;}
     if (firstInYear.month !== lastMonth) {
       monthSpans.push({ month: firstInYear.month, startWeek: weekIndex });
       lastMonth = firstInYear.month;
@@ -92,16 +92,16 @@ function getYearGrid(year: number, now: Date = new Date()): YearGrid {
 }
 
 function intensityBucket(value: number, metric: HeatmapMetric): number {
-  if (!value) return 0;
+  if (!value) {return 0;}
   if (metric === "chars") {
-    if (value < 2500) return 1;
-    if (value < 7000) return 2;
-    if (value < 14000) return 3;
+    if (value < 2500) {return 1;}
+    if (value < 7000) {return 2;}
+    if (value < 14000) {return 3;}
     return 4;
   }
-  if (value < 20) return 1;
-  if (value < 45) return 2;
-  if (value < 80) return 3;
+  if (value < 20) {return 1;}
+  if (value < 45) {return 2;}
+  if (value < 80) {return 3;}
   return 4;
 }
 
@@ -145,9 +145,9 @@ export function YearHeatmap({
 
     populatedWeeks.forEach((week) =>
       week.forEach((cell) => {
-        if (!cell.inYear || cell.isFuture) return;
+        if (!cell.inYear || cell.isFuture) {return;}
         pastDays++;
-        if (cell.value > 0) activeDays++;
+        if (cell.value > 0) {activeDays++;}
         const day = byDate[cell.date];
         if (day) {
           totalChars += day.chars;
@@ -186,12 +186,7 @@ export function YearHeatmap({
               <path d="M7 2L3 5.5 7 9" />
             </svg>
           </button>
-          <h2>
-            {year}
-            <span className="yr-suffix" lang="ja">
-              年
-            </span>
-          </h2>
+          <h2>{year}</h2>
           <button
             className="sa-iconbtn"
             onClick={() => nudgeYear(1)}
@@ -213,9 +208,7 @@ export function YearHeatmap({
           <span className="sa-year-summary">
             <span className="num">{yearStats.activeDays}</span> days ·{" "}
             {metric === "chars" ? (
-              <>
-                {fmtChars(yearStats.totalChars)} <span lang="ja">字</span>
-              </>
+              <>{fmtChars(yearStats.totalChars)} chars</>
             ) : (
               fmtMinutes(yearStats.totalMinutes)
             )}
@@ -228,20 +221,18 @@ export function YearHeatmap({
               className={metric === "chars" ? "on" : ""}
               onClick={() => onMetricChange("chars")}
             >
-              <span lang="ja">字</span> Chars
+              Chars
             </button>
             <button
               className={metric === "minutes" ? "on" : ""}
               onClick={() => onMetricChange("minutes")}
             >
-              <span lang="ja">分</span> Minutes
+              Minutes
             </button>
           </div>
         ) : (
           <div className="sa-metric" style={{ pointerEvents: "none" }}>
-            <button className="on">
-              <span lang="ja">分</span> Minutes
-            </button>
+            <button className="on">Minutes</button>
           </div>
         )}
       </div>
@@ -319,9 +310,7 @@ export function YearHeatmap({
               <span className="num">
                 {yearStats.bestDate.slice(5)} (
                 {metric === "chars" ? (
-                  <>
-                    {fmtChars(yearStats.bestValue)} <span lang="ja">字</span>
-                  </>
+                  <>{fmtChars(yearStats.bestValue)} chars</>
                 ) : (
                   `${yearStats.bestValue}m`
                 )}

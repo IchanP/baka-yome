@@ -3,10 +3,10 @@ import type { HeatmapMetric } from "./YearHeatmap";
 import { ImmersionKind, SOURCE_LABELS, sourcesForKind, type Source } from "../lib/types";
 import { useToast } from "../providers/ToastContext";
 import { Select } from "./Select";
+import type { Mode } from "../providers/ModeContext";
 
 export type LogSessionProps = {
-  mode: string;
-  isListening: boolean;
+  mode: Mode;
 };
 
 type LogEntry = {
@@ -14,7 +14,6 @@ type LogEntry = {
   amount: number;
 };
 
-/** Per-field validation messages; a field is valid when its key is absent. */
 type FieldErrors = {
   title?: string;
   amount?: string;
@@ -77,23 +76,42 @@ const reducer = (state: LogState, action: LogAction): LogState => {
   }
 };
 
-export function LogSession({ mode, isListening }: LogSessionProps) {
+export function LogSession({ mode }: LogSessionProps) {
   const [logUnit, setLogUnit] = useState<HeatmapMetric>("chars");
+  const [overallKind, setOverallKind] = useState<ImmersionKind>("reading");
   const [formData, dispatch] = useReducer(reducer, initialData);
   const toast = useToast();
 
-  const kind: ImmersionKind = isListening ? "listening" : "reading";
+  let kind: ImmersionKind = overallKind;
+  if (mode !== "overall") {
+    kind = mode;
+  }
+  const isListeningKind = kind === "listening";
+
   const sources = sourcesForKind(kind);
 
   useEffect(() => {
-    dispatch({ type: "SOURCE", payload: sources[0] });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isListening]);
+    dispatch({ type: "SOURCE", payload: sourcesForKind(kind)[0] });
+  }, [kind]);
+
+  let eyebrow = "Log session";
+  if (isListeningKind) {
+    eyebrow = "Log listen";
+  }
+  
+  let placeholder = "What did you read?";
+  if (isListeningKind) {
+    placeholder = "What did you watch or listen to? — title or link";
+  }
 
   const submitLog: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     const { title, amount, source } = formData;
-    const unit = isListening || logUnit === "minutes" ? "minutes" : "characters";
+
+    let unit: "minutes" | "characters" = "characters";
+    if (isListeningKind || logUnit === "minutes") {
+      unit = "minutes";
+    }
 
     const errors: FieldErrors = {};
     if (title.trim() === "") {
@@ -134,24 +152,25 @@ export function LogSession({ mode, isListening }: LogSessionProps) {
 
   return (
     <div className="sa-log-row">
-      <div className="sa-log-eyebrow">
-        {isListening ? "Log listen" : "Log session"}
-        <span className="ja">
-          {" · "}
-          <span lang="ja">{isListening ? "視聴" : "記録"}</span>
-        </span>
-      </div>
+      <div className="sa-log-eyebrow">{eyebrow}</div>
       <form className="sa-log-form" onSubmit={submitLog} noValidate>
         <div className="sa-log-fields">
+          {mode === "overall" && (
+            <Select
+              value={kind}
+              options={[
+                { value: "reading", label: "Reading" },
+                { value: "listening", label: "Listening" },
+              ]}
+              onChange={(k) => setOverallKind(k)}
+              ariaLabel="Reading or listening"
+            />
+          )}
           <input
             key={`title-${mode}`}
             className="sa-log-title"
             lang="ja"
-            placeholder={
-              isListening
-                ? "What did you watch or listen to? — title or link"
-                : "What did you read?"
-            }
+            placeholder={placeholder}
             value={formData.title}
             onChange={(e) => dispatch({ type: "TITLE", payload: e.target.value })}
             aria-invalid={formData.errors.title ? true : undefined}
@@ -172,10 +191,10 @@ export function LogSession({ mode, isListening }: LogSessionProps) {
             aria-invalid={formData.errors.amount ? true : undefined}
             aria-describedby={formData.errors.amount ? "log-amount-error" : undefined}
           />
-          {isListening ? (
+          {isListeningKind ? (
             <div className="sa-log-unit">
-              <span className="sa-log-unit-static" title="Minutes" lang="ja">
-                分
+              <span className="sa-log-unit-static" title="Minutes">
+                min
               </span>
             </div>
           ) : (
@@ -185,18 +204,16 @@ export function LogSession({ mode, isListening }: LogSessionProps) {
                 className={logUnit === "chars" ? "on" : ""}
                 onClick={() => setLogUnit("chars")}
                 title="Characters"
-                lang="ja"
               >
-                字
+                chars
               </button>
               <button
                 type="button"
                 className={logUnit === "minutes" ? "on" : ""}
                 onClick={() => setLogUnit("minutes")}
                 title="Minutes"
-                lang="ja"
               >
-                分
+                min
               </button>
             </div>
           )}

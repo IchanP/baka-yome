@@ -21,6 +21,12 @@ export type ListeningSession = {
   minutes: number;
 };
 
+// Sessions carry a `kind` tag so the Overall view can merge both streams and
+// still render (and colour-dot) each row by where it came from.
+export type TaggedReadingSession = ReadingSession & { kind: "reading" };
+export type TaggedListeningSession = ListeningSession & { kind: "listening" };
+export type TaggedSession = TaggedReadingSession | TaggedListeningSession;
+
 export type DayAggregate<T> = {
   chars: number;
   minutes: number;
@@ -110,8 +116,8 @@ function aggregate<
 
   let streak = 0;
   for (let i = 0; i < 365; i++) {
-    if (byDate[dateOffset(i)]) streak++;
-    else break;
+    if (byDate[dateOffset(i)]) {streak++;}
+    else {break;}
   }
 
   let weekMinutes = 0;
@@ -138,7 +144,7 @@ function buildReading(): SessionStream<ReadingSession> {
   const sessions: ReadingSession[] = [];
   for (let i = 0; i < 395; i++) {
     const day = rr();
-    if (day < 0.22) continue;
+    if (day < 0.22) {continue;}
     const count = day < 0.8 ? 1 : 2;
     for (let s = 0; s < count; s++) {
       const book = READ_TITLES[Math.floor(rr() * READ_TITLES.length)];
@@ -179,7 +185,7 @@ function buildListening(): SessionStream<ListeningSession> {
   const sessions: ListeningSession[] = [];
   for (let i = 0; i < 395; i++) {
     const day = lr();
-    if (day < 0.34) continue;
+    if (day < 0.34) {continue;}
     const count = day < 0.85 ? 1 : 2;
     for (let s = 0; s < count; s++) {
       const item = LISTEN_TITLES[Math.floor(lr() * LISTEN_TITLES.length)];
@@ -218,3 +224,15 @@ function buildListening(): SessionStream<ListeningSession> {
 
 export const READING_DATA = buildReading();
 export const LISTENING_DATA = buildListening();
+
+// Overall = both streams folded together. `aggregate` is metric-agnostic
+// (listening rows have no `chars`, which it reads as 0), so the merged byDate,
+// totals, streak and week all come out minute-and-char correct.
+export const OVERALL_DATA = aggregate<TaggedSession>([
+  ...READING_DATA.sessions.map(
+    (s): TaggedReadingSession => ({ ...s, kind: "reading" }),
+  ),
+  ...LISTENING_DATA.sessions.map(
+    (s): TaggedListeningSession => ({ ...s, kind: "listening" }),
+  ),
+]);
