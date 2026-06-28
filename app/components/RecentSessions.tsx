@@ -62,7 +62,7 @@ function SessionRow({
 }) {
   const isListening = session.kind === "listening";
   const title = session.title ?? "Untitled";
-  const minutes = session.minutes ?? 0;
+  const minutes = session.minutes;
 
   return (
     <div className={styles.row}>
@@ -90,15 +90,17 @@ function SessionRow({
             <div className={styles.chars}>
               {minutes} <span className={styles.unit}>min</span>
             </div>
-            <div className={styles.mins}>{(minutes / 60).toFixed(1)}h</div>
           </>
         ) : (
           <>
-            <div className={styles.chars}>
-              {fmtChars(session.characters ?? 0)}{" "}
-              <span className={styles.unit}>chars</span>
-            </div>
-            <div className={styles.mins}>{minutes}m</div>
+           { !minutes ?
+              <div className={styles.chars}>
+                {fmtChars(session.characters ?? 0)}{" "}
+                <span className={styles.unit}>chars</span>
+              </div> 
+              :
+              <div className={styles.mins}>{minutes}m</div> 
+            }
           </>
         )}
       </div>
