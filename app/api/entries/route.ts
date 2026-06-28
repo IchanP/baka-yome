@@ -4,10 +4,8 @@ import { NextResponse } from "next/server";
 import { createEntry } from "@/app/server/entries";
 import {
   createNewEntry,
-  ImmersionKind,
   isImmersionKind,
   isSource,
-  NewEntry,
   sourcesForKind,
 } from "@/app/lib/types";
 
