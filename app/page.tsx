@@ -47,7 +47,7 @@ export default function StatisticsPage() {
   if (isReading) {heatmapMetric = readingMetric;}
 
   // Is auto-updated using the mutate API in logsession.
-  const { data: entries } = useSWR<Entry[]>("/api/entries", fetcher);
+  const { data: entries, isLoading } = useSWR<Entry[]>("/api/entries", fetcher);
 
   const recentSessions = useMemo<Entry[]>(() => {
     const all = entries ?? [];
@@ -82,7 +82,11 @@ export default function StatisticsPage() {
           </div>
 
           {/* Recent sessions (narrow rail on ≥760px, stacked below on mobile) */}
-          <RecentSessions sessions={recentSessions} isOverall={isOverall} />
+          <RecentSessions
+            sessions={recentSessions}
+            isOverall={isOverall}
+            isLoading={isLoading}
+          />
         </div>
       </div>
     </>

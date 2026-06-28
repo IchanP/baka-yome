@@ -14,9 +14,14 @@ const KIND_HUE: Record<"reading" | "listening", string> = {
 export type RecentSessionsProps = {
   sessions: Entry[];
   isOverall: boolean;
+  isLoading: boolean;
 };
 
-export function RecentSessions({ sessions, isOverall }: RecentSessionsProps) {
+export function RecentSessions({
+  sessions,
+  isOverall,
+  isLoading,
+}: RecentSessionsProps) {
   return (
     <div className={`sa-card ${styles.sessCard}`}>
       <div className={styles.head}>
@@ -24,9 +29,19 @@ export function RecentSessions({ sessions, isOverall }: RecentSessionsProps) {
         {isOverall && <span className={styles.sub}>reading + listening</span>}
       </div>
       <div className={styles.list}>
-        {sessions.map((session) => (
-          <SessionRow key={session.id} session={session} showDot={isOverall} />
-        ))}
+        {isLoading ? (
+          <div
+            className={styles.loader}
+            role="status"
+            aria-label="Loading sessions"
+          >
+            <span className={styles.spinner} />
+          </div>
+        ) : (
+          sessions.map((session) => (
+            <SessionRow key={session.id} session={session} showDot={isOverall} />
+          ))
+        )}
       </div>
     </div>
   );
@@ -93,13 +108,14 @@ function SessionRow({
           </>
         ) : (
           <>
-           { !minutes ?
+           { !minutes ? (
               <div className={styles.chars}>
                 {fmtChars(session.characters ?? 0)}{" "}
                 <span className={styles.unit}>chars</span>
               </div> 
-              :
-              <div className={styles.mins}>{minutes}m</div> 
+              ) : (
+              <div className={styles.mins}>{minutes}m</div>
+              ) 
             }
           </>
         )}
