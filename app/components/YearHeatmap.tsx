@@ -4,7 +4,7 @@ import { Fragment, useMemo } from "react";
 import { fmtChars, fmtMinutes, fmtNum, MONTHS_EN, ymd } from "../lib/format";
 import styles from "./YearHeatmap.module.css";
 
-export type HeatmapMetric = "chars" | "minutes";
+export type HeatmapMetric = "chars" | "minutes" | "overall";
 
 export type HeatmapDay = {
   chars: number;
@@ -16,9 +16,6 @@ export type YearHeatmapProps = {
   onYearChange: (year: number) => void;
   byDate: Record<string, HeatmapDay>;
   metric: HeatmapMetric;
-  onMetricChange: (metric: HeatmapMetric) => void;
-  /** When false, the chars/minutes toggle is replaced with a static "minutes" label. */
-  showMetricToggle: boolean;
   /** Tooltip text for days with no activity (e.g. "no reading", "no listening"). */
   emptyDayLabel: string;
   /** Past-tense verb used in the foot summary (e.g. "read", "listened"). */
@@ -92,18 +89,71 @@ function getYearGrid(year: number, now: Date = new Date()): YearGrid {
   return { weeks, monthSpans };
 }
 
-function intensityBucket(value: number, metric: HeatmapMetric): number {
+function intensityBucket(value: number, metric: "chars" | "minutes"): number {
   if (!value) {return 0;}
+  
   if (metric === "chars") {
     if (value < 2500) {return 1;}
     if (value < 7000) {return 2;}
     if (value < 14000) {return 3;}
     return 4;
   }
+
   if (value < 20) {return 1;}
   if (value < 45) {return 2;}
   if (value < 80) {return 3;}
   return 4;
+}
+
+// Used for overall comparison across both reading and listening.
+function bucketFor(metric: HeatmapMetric, chars: number, minutes: number): number {
+  if (metric === "chars") {
+    return intensityBucket(chars, "chars");
+  }
+  if (metric === "minutes") {
+    return intensityBucket(minutes, "minutes");
+  }
+  return Math.min(
+    4,
+    intensityBucket(chars, "chars") + intensityBucket(minutes, "minutes"),
+  );
+}
+
+function rankValue(
+  metric: HeatmapMetric,
+  chars: number,
+  minutes: number,
+  intensity: number,
+): number {
+  if (metric === "chars") {
+    return chars;
+  }
+  if (metric === "minutes") {
+    return minutes;
+  }
+  // Overall uses intensity
+  return intensity;
+}
+
+function describeDay(
+  metric: HeatmapMetric,
+  chars: number,
+  minutes: number,
+): string {
+  if (metric === "chars") {
+    return `${fmtNum(chars)} chars`;
+  }
+  if (metric === "minutes") {
+    return `${minutes} min`;
+  }
+  const parts: string[] = [];
+  if (chars > 0) {
+    parts.push(`${fmtNum(chars)} chars`);
+  }
+  if (minutes > 0) {
+    parts.push(`${minutes} min`);
+  }
+  return parts.join(" · ");
 }
 
 export function YearHeatmap({
@@ -111,8 +161,6 @@ export function YearHeatmap({
   onYearChange,
   byDate,
   metric,
-  onMetricChange,
-  showMetricToggle,
   emptyDayLabel,
   activityVerbPast,
 }: YearHeatmapProps) {
@@ -125,12 +173,15 @@ export function YearHeatmap({
       yearGrid.weeks.map((week) =>
         week.map((cell) => {
           const day = byDate[cell.date];
-          const value = day ? (metric === "chars" ? day.chars : day.minutes) : 0;
-          return {
-            ...cell,
-            value,
-            intensity: intensityBucket(value, metric),
-          };
+          let chars = 0;
+          let minutes = 0;
+          if (day) {
+            chars = day.chars;
+            minutes = day.minutes;
+          }
+          const intensity = bucketFor(metric, chars, minutes);
+          const rank = rankValue(metric, chars, minutes, intensity);
+          return { ...cell, chars, minutes, intensity, rank };
         }),
       ),
     [yearGrid, byDate, metric],
@@ -141,28 +192,58 @@ export function YearHeatmap({
     let pastDays = 0;
     let totalChars = 0;
     let totalMinutes = 0;
-    let bestValue = 0;
+    let bestRank = 0;
     let bestDate = "";
+    let bestChars = 0;
+    let bestMinutes = 0;
 
     populatedWeeks.forEach((week) =>
       week.forEach((cell) => {
         if (!cell.inYear || cell.isFuture) {return;}
         pastDays++;
-        if (cell.value > 0) {activeDays++;}
-        const day = byDate[cell.date];
-        if (day) {
-          totalChars += day.chars;
-          totalMinutes += day.minutes;
-        }
-        if (cell.value > bestValue) {
-          bestValue = cell.value;
+        if (cell.intensity > 0) {activeDays++;}
+        totalChars += cell.chars;
+        totalMinutes += cell.minutes;
+        if (cell.rank > bestRank) {
+          bestRank = cell.rank;
           bestDate = cell.date;
+          bestChars = cell.chars;
+          bestMinutes = cell.minutes;
         }
       }),
     );
 
-    return { activeDays, pastDays, totalChars, totalMinutes, bestValue, bestDate };
-  }, [populatedWeeks, byDate]);
+    return {
+      activeDays,
+      pastDays,
+      totalChars,
+      totalMinutes,
+      bestDate,
+      bestChars,
+      bestMinutes,
+    };
+  }, [populatedWeeks]);
+
+  let metricLabel;
+  switch( metric ) {
+    case "chars":
+      metricLabel = "Characters";
+      break;
+    case "minutes":
+      metricLabel = "Minutes";
+      break;
+    case "overall":
+      metricLabel = "Overall";  
+  }
+
+  let summaryText = fmtMinutes(yearStats.totalMinutes);
+  if (metric === "chars") {
+    summaryText = `${fmtChars(yearStats.totalChars)} chars`;
+  } else if (metric === "overall") {
+    summaryText = `${fmtChars(yearStats.totalChars)} chars · ${fmtMinutes(
+      yearStats.totalMinutes,
+    )}`;
+  }
 
   const nudgeYear = (delta: number) => onYearChange(year + delta);
 
@@ -208,34 +289,13 @@ export function YearHeatmap({
           </button>
           <span className={styles.yearSummary}>
             <span className={styles.num}>{yearStats.activeDays}</span> days ·{" "}
-            {metric === "chars" ? (
-              <>{fmtChars(yearStats.totalChars)} chars</>
-            ) : (
-              fmtMinutes(yearStats.totalMinutes)
-            )}
+            {summaryText}
           </span>
         </div>
 
-        {showMetricToggle ? (
-          <div className={styles.metric}>
-            <button
-              className={metric === "chars" ? styles.on : ""}
-              onClick={() => onMetricChange("chars")}
-            >
-              Chars
-            </button>
-            <button
-              className={metric === "minutes" ? styles.on : ""}
-              onClick={() => onMetricChange("minutes")}
-            >
-              Minutes
-            </button>
-          </div>
-        ) : (
-          <div className={styles.metric} style={{ pointerEvents: "none" }}>
-            <button className={styles.on}>Minutes</button>
-          </div>
-        )}
+        <div className={styles.metric} style={{ pointerEvents: "none" }}>
+          <button className={styles.on}>{metricLabel}</button>
+        </div>
       </div>
 
       <div className={styles.calBody}>
@@ -267,21 +327,20 @@ export function YearHeatmap({
                 const className = [
                   styles.yhCell,
                   !cell.inYear ? styles.out : "",
-                  cell.value > 0 && !cell.isFuture ? styles.has : "",
+                  cell.intensity > 0 && !cell.isFuture ? styles.has : "",
                   cell.isFuture ? styles.future : "",
                   cell.isToday ? styles.today : "",
                 ]
                   .filter(Boolean)
                   .join(" ");
-                const title = cell.inYear
-                  ? `${cell.date} · ${
-                      cell.value > 0
-                        ? metric === "chars"
-                          ? `${fmtNum(cell.value)} chars`
-                          : `${cell.value} min`
-                        : emptyDayLabel
-                    }`
-                  : "";
+                let title = "";
+                if (cell.inYear) {
+                  let desc = emptyDayLabel;
+                  if (cell.intensity > 0) {
+                    desc = describeDay(metric, cell.chars, cell.minutes);
+                  }
+                  title = `${cell.date} · ${desc}`;
+                }
                 return (
                   <div
                     key={`c${dayIdx}-${weekIndex}`}
@@ -310,11 +369,7 @@ export function YearHeatmap({
               {" · best day: "}
               <span className={styles.num}>
                 {yearStats.bestDate.slice(5)} (
-                {metric === "chars" ? (
-                  <>{fmtChars(yearStats.bestValue)} chars</>
-                ) : (
-                  `${yearStats.bestValue}m`
-                )}
+                {describeDay(metric, yearStats.bestChars, yearStats.bestMinutes)}
                 )
               </span>
             </>

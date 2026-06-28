@@ -18,7 +18,8 @@ import styles from "./page.module.css";
 const fetcher = (url: string): Promise<Entry[]> =>
   fetch(url).then((r) => r.json());
 
-// Per-mode copy + data, keyed by mode so the page reads as lookups not ternaries.
+const RECENT_LIMIT = 8;
+
 const STREAMS = {
   overall: OVERALL_DATA,
   reading: READING_DATA,
@@ -40,11 +41,15 @@ const ACTIVITY_VERB_PAST: Record<Mode, string> = {
 export default function StatisticsPage() {
   const { mode, isOverall, isReading, isListening } = useMode();
   const [year, setYear] = useState(() => new Date().getFullYear());
-  const [readingMetric, setReadingMetric] = useState<HeatmapMetric>("chars");
   const stream = STREAMS[mode];
 
   let heatmapMetric: HeatmapMetric = "minutes";
-  if (isReading) {heatmapMetric = readingMetric;}
+  if (isReading) {
+    heatmapMetric = "chars";
+  } 
+  if (isOverall) {
+    heatmapMetric = "overall";
+  }
 
   // Is auto-updated using the mutate API in logsession.
   const { data: entries, isLoading } = useSWR<Entry[]>("/api/entries", fetcher);
@@ -57,7 +62,7 @@ export default function StatisticsPage() {
     } else if (isListening) {
       filtered = all.filter((e) => e.kind === "listening");
     }
-    return filtered.slice(0, 8);
+    return filtered.slice(0, RECENT_LIMIT);
   }, [entries, isReading, isListening]);
 
   return (
@@ -73,8 +78,6 @@ export default function StatisticsPage() {
               onYearChange={setYear}
               byDate={stream.byDate}
               metric={heatmapMetric}
-              onMetricChange={setReadingMetric}
-              showMetricToggle={isReading}
               emptyDayLabel={EMPTY_DAY_LABEL[mode]}
               activityVerbPast={ACTIVITY_VERB_PAST[mode]}
             />

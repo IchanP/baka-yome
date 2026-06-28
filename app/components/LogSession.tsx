@@ -1,6 +1,5 @@
 import { useEffect, useReducer, useState, type SubmitEventHandler } from "react";
 import { mutate } from "swr";
-import type { HeatmapMetric } from "./YearHeatmap";
 import { ymd } from "../lib/format";
 import {
   ImmersionKind,
@@ -86,7 +85,6 @@ const reducer = (state: LogState, action: LogAction): LogState => {
 };
 
 export function LogSession({ mode }: LogSessionProps) {
-  const [logUnit, setLogUnit] = useState<HeatmapMetric>("chars");
   const [overallKind, setOverallKind] = useState<ImmersionKind>("reading");
   const [formData, dispatch] = useReducer(reducer, initialData);
   const toast = useToast();
@@ -95,30 +93,31 @@ export function LogSession({ mode }: LogSessionProps) {
   if (mode !== "overall") {
     kind = mode;
   }
+
   const isListeningKind = kind === "listening";
 
+  let eyebrow = "Log session";
+  let placeholder = "What did you read?";
+  let unitTitle = "Characters";
+  if (isListeningKind) {
+    eyebrow = "Log listen";
+    placeholder = "What did you watch or listen to? — title or link";
+    unitTitle = "Minutes"
+  }
+  
   const sources = sourcesForKind(kind);
-
+  
   useEffect(() => {
     dispatch({ type: "SOURCE", payload: sourcesForKind(kind)[0] });
   }, [kind]);
 
-  let eyebrow = "Log session";
-  if (isListeningKind) {
-    eyebrow = "Log listen";
-  }
-  
-  let placeholder = "What did you read?";
-  if (isListeningKind) {
-    placeholder = "What did you watch or listen to? — title or link";
-  }
 
   const submitLog: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     const { title, amount, source } = formData;
 
     let unit: "minutes" | "characters" = "characters";
-    if (isListeningKind || logUnit === "minutes") {
+    if (isListeningKind) {
       unit = "minutes";
     }
 
@@ -233,32 +232,11 @@ export function LogSession({ mode }: LogSessionProps) {
             aria-invalid={formData.errors.amount ? true : undefined}
             aria-describedby={formData.errors.amount ? "log-amount-error" : undefined}
           />
-          {isListeningKind ? (
-            <div className={styles.unit}>
-              <span className={styles.unitStatic} title="Minutes">
-                min
-              </span>
-            </div>
-          ) : (
-            <div className={styles.unit}>
-              <button
-                type="button"
-                className={logUnit === "chars" ? styles.on : ""}
-                onClick={() => setLogUnit("chars")}
-                title="Characters"
-              >
-                chars
-              </button>
-              <button
-                type="button"
-                className={logUnit === "minutes" ? styles.on : ""}
-                onClick={() => setLogUnit("minutes")}
-                title="Minutes"
-              >
-                min
-              </button>
-            </div>
-          )}
+          <div className={styles.unit}>
+            <span className={styles.unitStatic} title={unitTitle}>
+              {unitTitle}
+            </span>
+          </div>
           <button className={styles.go} aria-label="Log session" type="submit">
             Log
             <svg

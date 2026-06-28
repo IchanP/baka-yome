@@ -118,24 +118,6 @@
   padding-bottom: 2px;
 }
 
-.unit button {
-  border: none;
-  background: transparent;
-  color: var(--mute);
-  cursor: pointer;
-  font-family: var(--font-sans), sans-serif;
-  font-weight: 500;
-  font-size: var(--fs-sm);
-  line-height: 1;
-  padding: 6px 7px;
-  border-radius: 4px;
-}
-
-.unit button.on {
-  color: var(--accent);
-  font-weight: 700;
-}
-
 .unitStatic {
   color: var(--accent);
   font-family: var(--font-sans), sans-serif;

@@ -26,7 +26,7 @@ export function RecentSessions({
     <div className={`sa-card ${styles.sessCard}`}>
       <div className={styles.head}>
         <h3>Recent sessions</h3>
-        {isOverall && <span className={styles.sub}>reading + listening</span>}
+        {isOverall && <span className={styles.sub}>Reading & Listening</span>}
       </div>
       <div className={styles.list}>
         {isLoading ? (
