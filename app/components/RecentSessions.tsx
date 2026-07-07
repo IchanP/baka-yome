@@ -3,11 +3,10 @@ import { fmtChars, MONTHS_EN } from "../lib/format";
 import { SOURCE_LABELS, type Entry } from "../lib/types";
 import styles from "./RecentSessions.module.css";
 
-// Dot colours match the reading/listening accents in globals.css. They're
-// hard-coded (not var(--accent)) because the overall view paints in the
-// reading palette yet still needs the red dot for listening rows.
+
+// Dot color to make differentiating on overall page easier.
 const KIND_HUE: Record<"reading" | "listening", string> = {
-  reading: "#a380e5",
+  reading: "#5aa2f0",
   listening: "#e0685c",
 };
 

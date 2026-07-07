@@ -62,7 +62,7 @@ export default function StatisticsPage() {
     } else if (isListening) {
       filtered = all.filter((e) => e.kind === "listening");
     }
-    return filtered.slice(0, RECENT_LIMIT);
+    return filtered?.slice(0, RECENT_LIMIT) || [];
   }, [entries, isReading, isListening]);
 
   return (

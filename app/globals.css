@@ -37,14 +37,14 @@
   --fs-display: calc(26px * var(--fs-scale));
   --fs-display-lg: calc(28px * var(--fs-scale));
 
-  /* Default accent — reading (purple). Library pages inherit this. */
-  --accent: #a380e5;
+  /* Default accent — reading (azure blue). Library pages inherit this. */
+  --accent: #5aa2f0;
   --accent-ink: #1c1d21;
   --heat-0: #2b2c33;
-  --heat-1: #363041;
-  --heat-2: #4a3a6e;
-  --heat-3: #6f55a3;
-  --heat-4: #a380e5;
+  --heat-1: #2c3440;
+  --heat-2: #2f5080;
+  --heat-3: #3a72bf;
+  --heat-4: #5aa2f0;
 }
 
 /* Listening mode override — only the stats page sets this. */
@@ -58,15 +58,15 @@
   --heat-4: #e0685c;
 }
 
-/* Overall mode — teal. Provisional palette, likely to change. */
+/* Overall mode — purple. */
 [data-mode="overall"] {
-  --accent: #46c7b8;
+  --accent: #a380e5;
   --accent-ink: #1c1d21;
   --heat-0: #2b2c33;
-  --heat-1: #2f3d3c;
-  --heat-2: #2f5d57;
-  --heat-3: #379184;
-  --heat-4: #46c7b8;
+  --heat-1: #363041;
+  --heat-2: #4a3a6e;
+  --heat-3: #6f55a3;
+  --heat-4: #a380e5;
 }
 
 html {

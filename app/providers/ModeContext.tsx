@@ -13,7 +13,7 @@ type ModeContextValue = {
   isOverall: boolean;
   isReading: boolean;
   isListening: boolean;
-  /** Each mode paints in its own palette (overall = teal, reading = plum, listening = red). */
+  /** Each mode paints in its own palette (overall = purple, reading = azure blue, listening = red). */
   paletteMode: PaletteMode;
 };
 
