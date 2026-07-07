@@ -6,6 +6,14 @@
   border-bottom: 1px solid var(--rule);
 }
 
+.overall {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.overall .streakStat {
+  grid-column: 1 / -1;
+}
+
 .stat {
   padding: 0;
   text-align: center;
@@ -58,9 +66,55 @@
   margin-top: 6px;
 }
 
+/* First-load skeleton: pulsing bars stand in for value + sub, same layout. */
+.bar {
+  display: inline-block;
+  border-radius: 6px;
+  background: var(--rule-soft);
+  animation: heroPulse 1.2s ease-in-out infinite;
+}
+
+.barNum {
+  width: 58%;
+  height: var(--fs-display);
+}
+
+.barSub {
+  width: 72%;
+  height: var(--fs-xs);
+}
+
+@keyframes heroPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    animation-duration: 2.4s;
+  }
+}
+
 @container (min-width: 720px) {
   .statSub {
     font-size: var(--fs-sm);
     margin-top: 7px;
+  }
+
+  .overall {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .overall .streakStat {
+    grid-column: auto;
+  }
+
+  .overall .statNum {
+    font-size: calc(var(--fs-display) * 0.74);
   }
 }

@@ -6,11 +6,7 @@ import { HeroStats } from "./components/HeroStats";
 import { LogSession } from "./components/LogSession";
 import { RecentSessions } from "./components/RecentSessions";
 import { YearHeatmap, type HeatmapMetric } from "./components/YearHeatmap";
-import {
-  LISTENING_DATA,
-  OVERALL_DATA,
-  READING_DATA,
-} from "./lib/mock-data";
+import { buildStreamFromEntries } from "./lib/stream";
 import type { Entry } from "./lib/types";
 import { useMode, type Mode } from "./providers/ModeContext";
 import styles from "./page.module.css";
@@ -19,12 +15,6 @@ const fetcher = (url: string): Promise<Entry[]> =>
   fetch(url).then((r) => r.json());
 
 const RECENT_LIMIT = 8;
-
-const STREAMS = {
-  overall: OVERALL_DATA,
-  reading: READING_DATA,
-  listening: LISTENING_DATA,
-};
 
 // TODO move these into yearheatmap
 const EMPTY_DAY_LABEL: Record<Mode, string> = {
@@ -41,18 +31,31 @@ const ACTIVITY_VERB_PAST: Record<Mode, string> = {
 export default function StatisticsPage() {
   const { mode, isOverall, isReading, isListening } = useMode();
   const [year, setYear] = useState(() => new Date().getFullYear());
-  const stream = STREAMS[mode];
 
   let heatmapMetric: HeatmapMetric = "minutes";
   if (isReading) {
     heatmapMetric = "chars";
-  } 
+  }
   if (isOverall) {
     heatmapMetric = "overall";
   }
 
   // Is auto-updated using the mutate API in logsession.
   const { data: entries, isLoading } = useSWR<Entry[]>("/api/entries", fetcher);
+
+  // One transform feeds both HeroStats and the heatmap; recomputes whenever the
+  // SWR cache changes (including LogSession's optimistic mutate).
+  const streams = useMemo(() => {
+    const all = entries ?? [];
+    return {
+      reading: buildStreamFromEntries(all.filter((e) => e.kind === "reading")),
+      listening: buildStreamFromEntries(
+        all.filter((e) => e.kind === "listening"),
+      ),
+      overall: buildStreamFromEntries(all),
+    };
+  }, [entries]);
+  const stream = streams[mode];
 
   const recentSessions = useMemo<Entry[]>(() => {
     const all = entries ?? [];
@@ -67,7 +70,13 @@ export default function StatisticsPage() {
 
   return (
     <>
-      <HeroStats stream={stream} mode={mode} />
+      <HeroStats
+        stream={stream}
+        mode={mode}
+        reading={streams.reading}
+        listening={streams.listening}
+        isLoading={isLoading}
+      />
 
       {/* ── Body: heatmap + log (left col) · recent (right col) ── */}
       <div className={styles.body}>
