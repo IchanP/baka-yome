@@ -1,12 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Two jobs on every matched request:
-//   1. Refresh the Supabase session cookie so it never silently expires.
-//   2. Gate the whole app: send unauthenticated visitors to /login.
+
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  // Refresh session
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -28,24 +27,21 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  // Use getUser() (not getSession()) for auth decisions: it revalidates the JWT
-  // against the auth server. Do not put logic between this and createServerClient.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getClaims();
+  if (error) {
+    console.error("proxy: getClaims failed", error);
+  }
 
   const { pathname } = request.nextUrl;
   const isPublic =
     pathname.startsWith("/login") || pathname.startsWith("/auth");
 
-  if (!user && !isPublic) {
+  if (!data && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // Return the exact response the cookie setAll rebuilt, or the refreshed
-  // session tokens are dropped (causes random logouts).
   return response;
 }
 

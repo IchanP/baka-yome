@@ -7,9 +7,7 @@ import styles from "./login.module.css";
 // page also bounces already-signed-in users back to the app.
 export default async function LoginPage() {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user }, } = await supabase.auth.getUser();
   if (user) {
     redirect("/");
   }

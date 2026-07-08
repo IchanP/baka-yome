@@ -38,9 +38,7 @@ export default async function RootLayout({
   toolbar: React.ReactNode;
 }>) {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user }, } = await supabase.auth.getUser();
 
   // Discord identity lives in user_metadata; fall back across the common keys.
   const meta = user?.user_metadata ?? {};
