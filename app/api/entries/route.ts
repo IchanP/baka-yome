@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createEntry, listEntries } from "@/app/server/entries";
+import { createSupabaseServerClient } from "@/app/lib/supabase/server";
 import {
   createNewEntry,
   isImmersionKind,
@@ -9,7 +10,15 @@ import {
 
 export async function GET() {
   try {
-    const entries = await listEntries();
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const entries = await listEntries(supabase);
     return NextResponse.json(entries);
   } catch(e) {
     console.error(e);
@@ -18,6 +27,14 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await request.json();
   const { kind, unit, amount, title, occurredOn, source } = body;
 
@@ -53,7 +70,7 @@ export async function POST(request: Request) {
   let entryRow;
   try {
     const newEntry = createNewEntry({ title, kind, amount, unit, occurredOn, source });
-    entryRow = await createEntry(newEntry);
+    entryRow = await createEntry(supabase, newEntry);
   } catch (e) {
     console.error(e);
     return NextResponse.json(

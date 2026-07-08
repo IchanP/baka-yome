@@ -42,7 +42,7 @@ export function sourcesForKind(kind: ImmersionKind): Source[] {
 
 export type Entry = {
   id: string;
-  userId: string | null;
+  userId: string;
   kind: ImmersionKind;
   source: Source;
   title: string | null;
@@ -62,7 +62,6 @@ export type NewEntry = {
   occurredOn?: string;
   characters?: number | null;
   minutes?: number | null;
-  userId?: string | null;
 };
 
 /**
@@ -100,7 +99,7 @@ export function createNewEntry(baseData: {
 }): NewEntry {
   const { title, kind, amount, unit, occurredOn, source } = baseData;
 
-  // TODO add a userId somewhere... need login for that ignore for now
+  // No userId here: the DB assigns the owner via a default of auth.uid().
   const entry: NewEntry = { kind, source, occurredOn };
   if (unit === "minutes") {
     entry["minutes"] = amount;

@@ -1,12 +1,18 @@
-import { getServiceClient } from "./supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Entry, NewEntry } from "../lib/types";
 
 const TABLE = "entries";
 
+// The Supabase client is passed in (not imported) so this module never touches
+// `next/headers`, keeping the data layer transport-agnostic — the same reason
+// the SQL migrations are ORM-neutral (a future Rust server can reuse the shape).
+// Callers pass the request-scoped client from createSupabaseServerClient(), so
+// every query runs AS the logged-in user and RLS does the per-user filtering.
+
 /** Raw row as stored in Postgres*/
 type EntryRow = {
   id: string;
-  user_id: string | null;
+  user_id: string;
   kind: Entry["kind"];
   source: Entry["source"];
   title: string | null;
@@ -30,9 +36,9 @@ function toEntry(row: EntryRow): Entry {
   };
 }
 
-// Get recent entries
-export async function listEntries(): Promise<Entry[]> {
-  const supabase = getServiceClient();
+// Get recent entries. RLS restricts the result to the caller's own rows, so no
+// manual user_id filter is needed here.
+export async function listEntries(supabase: SupabaseClient): Promise<Entry[]> {
   const { data, error } = await supabase
     .from(TABLE)
     .select("*")
@@ -46,16 +52,18 @@ export async function listEntries(): Promise<Entry[]> {
 }
 
 /** Insert a new entry*/
-export async function createEntry(input: NewEntry): Promise<Entry> {
-  const supabase = getServiceClient();
-
+export async function createEntry(
+  supabase: SupabaseClient,
+  input: NewEntry,
+): Promise<Entry> {
+  // user_id is intentionally omitted: the column defaults to auth.uid(), so the
+  // DB assigns the owner and the server can't accidentally write someone else's.
   const payload: Record<string, unknown> = {
     kind: input.kind,
     source: input.source,
     title: input.title ?? null,
     characters: input.characters ?? null,
     minutes: input.minutes ?? null,
-    user_id: input.userId ?? null,
   };
 
   // Will default to the Supabase current date if omitted

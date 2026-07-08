@@ -9,6 +9,7 @@ import {
   type Source,
 } from "../lib/types";
 import { useToast } from "../providers/ToastContext";
+import { useUser } from "../providers/UserContext";
 import { Select } from "./Select";
 import type { Mode } from "../providers/ModeContext";
 import styles from "./LogSession.module.css";
@@ -88,6 +89,7 @@ export function LogSession({ mode }: LogSessionProps) {
   const [overallKind, setOverallKind] = useState<ImmersionKind>("reading");
   const [formData, dispatch] = useReducer(reducer, initialData);
   const toast = useToast();
+  const user = useUser();
 
   let kind: ImmersionKind = overallKind;
   if (mode !== "overall") {
@@ -147,7 +149,7 @@ export function LogSession({ mode }: LogSessionProps) {
     // Optimistic row shown immediately. Gets replaced with the updatedCached after postEntry returns.
     const optimisticEntry: Entry = {
       id: crypto.randomUUID(),
-      userId: null,
+      userId: user?.id ?? "",
       kind,
       source,
       title,

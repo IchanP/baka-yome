@@ -8,10 +8,45 @@
   border-bottom: 1px solid var(--rule);
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .nav {
   display: flex;
   gap: 4px;
   font-size: var(--fs-sm);
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.name {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--ink);
+  max-width: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container (max-width: 540px) {
+  .name {
+    display: none;
+  }
 }
 
 .nav span {
