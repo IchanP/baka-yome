@@ -149,7 +149,7 @@ export function LogSession({ mode }: LogSessionProps) {
     // Optimistic row shown immediately. Gets replaced with the updatedCached after postEntry returns.
     const optimisticEntry: Entry = {
       id: crypto.randomUUID(),
-      userId: user?.id ?? "",
+      userId: user?.id ?? "", // This is replaced in Supabase either way from RLS
       kind,
       source,
       title,
