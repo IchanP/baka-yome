@@ -7,3 +7,5 @@ node_modules
 .env*.local
 tsconfig.tsbuildinfo
 dev-readme.md
+CHANGELOG.md
+MANUAL_STEPS.md

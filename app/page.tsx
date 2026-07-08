@@ -43,7 +43,8 @@ export default function StatisticsPage() {
   // Is auto-updated using the mutate API in logsession.
   const { data: entries, isLoading } = useSWR<Entry[]>("/api/entries", fetcher);
 
-  // One transform feeds both HeroStats and the heatmap; recomputes whenever the
+  // One transform feeds both HeroStats and 
+  // the heatmap; recomputes whenever the
   // SWR cache changes (including LogSession's optimistic mutate).
   const streams = useMemo(() => {
     const all = entries ?? [];
