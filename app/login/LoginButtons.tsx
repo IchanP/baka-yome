@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/client";
 import styles from "./login.module.css";
+import Image from "next/image";
 
-// Auth methods are modelled as a list so future providers (e.g. magic-link
-// email) slot in as another entry rather than a restructure.
 export function LoginButtons() {
   const [pending, setPending] = useState(false);
 
@@ -30,6 +29,14 @@ export function LoginButtons() {
         onClick={signInWithDiscord}
         disabled={pending}
       >
+        <Image
+          src="/discord-symbol-white.svg"
+          alt=""
+          width={22}
+          height={22}
+          aria-hidden="true"
+          className={styles.discordIcon}
+        />
         {pending ? "Redirecting…" : "Sign in with Discord"}
       </button>
       {/* TODO: magic-link email form (signInWithOtp) goes here later. */}
