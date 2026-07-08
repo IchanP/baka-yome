@@ -56,8 +56,6 @@ export async function createEntry(
   supabase: SupabaseClient,
   input: NewEntry,
 ): Promise<Entry> {
-  // user_id is intentionally omitted: the column defaults to auth.uid(), so the
-  // DB assigns the owner and the server can't accidentally write someone else's.
   const payload: Record<string, unknown> = {
     kind: input.kind,
     source: input.source,

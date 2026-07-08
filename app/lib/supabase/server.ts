@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 
 
 /**
- * Retrieves auth.uid() and passes itt o supabase client as unique user id.
+ * Forwards JWT from cookies for extraction on supabase host.
  * 
  * @returns {SupabaseClient}
  * Authenticated supabase client
@@ -26,8 +26,7 @@ export async function createSupabaseServerClient() {
               cookieStore.set(name, value, options),
             );
           } catch {
-            // Called from a Server Component render, where the cookie store is
-            // read-only. Safe to ignore: the middleware refreshes the session.
+            // Refreshed by proxy.ts, as per supabase docs
           }
         },
       },

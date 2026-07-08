@@ -11,13 +11,6 @@ import {
 export async function GET() {
   try {
     const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const entries = await listEntries(supabase);
     return NextResponse.json(entries);
   } catch(e) {
@@ -28,12 +21,6 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   const body = await request.json();
   const { kind, unit, amount, title, occurredOn, source } = body;

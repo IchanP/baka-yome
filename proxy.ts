@@ -37,6 +37,9 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/login") || pathname.startsWith("/auth");
 
   if (!data && !isPublic) {
+    if (pathname.startsWith("/api")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
