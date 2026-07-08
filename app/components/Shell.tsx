@@ -6,6 +6,7 @@ import { SignOutButton } from "./SignOutButton";
 import { useMode } from "../providers/ModeContext";
 import { useUser } from "../providers/UserContext";
 import styles from "./Shell.module.css";
+import Image from "next/image";
 
 /**
  * App shell — owns the persistent header chrome (logo + nav) and the
@@ -37,9 +38,9 @@ export function Shell({
           </div>
           {user && (
             <div className={styles.user}>
+              <div className={styles.userInfo}>
               {user.avatarUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   className={styles.avatar}
                   src={user.avatarUrl}
                   alt=""
@@ -48,6 +49,7 @@ export function Shell({
                 />
               )}
               {user.name && <span className={styles.name}>{user.name}</span>}
+              </div>
               <SignOutButton />
             </div>
           )}

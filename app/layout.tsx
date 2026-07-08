@@ -40,12 +40,18 @@ export default async function RootLayout({
   const supabase = await createSupabaseServerClient();
   const { data: { user }, } = await supabase.auth.getUser();
 
-  // Discord identity lives in user_metadata; fall back across the common keys.
+  // Display discord user metadata
+  // TODO move this out into a separate discord related file
   const meta = user?.user_metadata ?? {};
   const sessionUser: SessionUser | null = user
     ? {
         id: user.id,
-        name: meta.full_name ?? meta.name ?? meta.user_name ?? null,
+        name:
+          meta.custom_claims?.global_name ??
+          meta.global_name ??
+          meta.name ??
+          meta.user_name ??
+          null,
         avatarUrl: meta.avatar_url ?? meta.picture ?? null,
       }
     : null;

@@ -2,9 +2,6 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 
-// Minimal, serializable view of the signed-in user, hydrated once from the
-// server in the root layout. Single source of truth for the id (LogSession)
-// and the display name / avatar (Shell).
 export type SessionUser = {
   id: string;
   name: string | null;
@@ -20,6 +17,7 @@ export function UserProvider({
   user: SessionUser | null;
   children: ReactNode;
 }) {
+  console.log(user);
   return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
 }
 

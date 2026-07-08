@@ -11,7 +11,19 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
+}
+
+.user {
+  padding-left: 20px;
+  border-left: 1px solid var(--rule);
+}
+
+@container (max-width: 540px) {
+  .user {
+    padding-left: 0;
+    border-left: none;
+  }
 }
 
 .nav {
@@ -22,8 +34,16 @@
 
 .user {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+.userInfo {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .avatar {
